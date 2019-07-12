@@ -49,6 +49,7 @@ group :development do
 end
 
 group :development do
+  gem 'faraday'
   gem 'overcommit', require: false
   gem 'rubocop', '~> 0.71', require: false
   gem 'rubocop-rails', '~> 2.1', require: false

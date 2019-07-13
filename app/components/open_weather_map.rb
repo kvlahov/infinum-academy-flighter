@@ -11,4 +11,8 @@ module OpenWeatherMap
       Rails.application.credentials[:open_weather_map_api_key])
     OpenWeatherMap::City.parse(JSON.parse(response.body))
   end
+
+  def self.cities(cityarr)
+    cityarr.map { |name| city(name) }.compact
+  end
 end

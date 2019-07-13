@@ -41,7 +41,7 @@ module OpenWeatherMap
     def nearby(count = 5)
       response =
         Faraday.get(
-          "http://api.openweathermap.org/data/2.5/find?lat=#{lat}&lon=#{lon}&cnt=#{count}&appid=" +
+          "https://api.openweathermap.org/data/2.5/find?lat=#{lat}&lon=#{lon}&cnt=#{count}&appid=" +
           Rails.application.credentials[:open_weather_map_api_key]
         )
       OpenWeatherMap.cities(JSON.parse(response.body)['list']

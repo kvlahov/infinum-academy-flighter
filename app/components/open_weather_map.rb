@@ -6,17 +6,23 @@ module OpenWeatherMap
     city_id = OpenWeatherMap::Resolver.city_id(name)
     return nil if city_id.nil?
 
-    response =
-      Faraday.get('http://api.openweathermap.org/data/2.5/weather?id=' + city_id.to_s + '&appid=' +
-      Rails.application.credentials[:open_weather_map_api_key])
-    OpenWeatherMap::City.parse(JSON.parse(response.body))
+    response = owm_api_call('weather', city_id.to_s)
+    OpenWeatherMap::City.parse(response)
   end
 
   def self.cities(cityarr)
-    cityarr.map { |name| city(name) }.compact
+    ids = cityarr.map { |name| OpenWeatherMap::Resolver.city_id(name) }.join(',')
+    owm_api_call('group', ids)['list'].map { |c| OpenWeatherMap::City.parse(c) }
   end
 
-  def self.bla
-    'This is stupid method'
+  private_class_method def self.owm_api_call(type, ids)
+    JSON.parse(
+      Faraday.get("https://api.openweathermap.org/data/2.5/#{type}?id=" + ids + '&appid=' +
+      credentials).body
+    )
+  end
+
+  def self.credentials
+    Rails.application.credentials[:open_weather_map_api_key]
   end
 end

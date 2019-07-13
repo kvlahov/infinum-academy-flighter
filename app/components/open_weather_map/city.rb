@@ -1,5 +1,3 @@
-require 'json'
-
 module OpenWeatherMap
   class City
     include Comparable

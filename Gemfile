@@ -50,6 +50,7 @@ end
 
 group :development do
   gem 'faraday'
+  gem 'geokit-rails'
   gem 'overcommit', require: false
   gem 'pry-rails'
   gem 'rubocop', '~> 0.71', require: false

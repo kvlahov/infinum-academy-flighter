@@ -15,4 +15,8 @@ module OpenWeatherMap
   def self.cities(cityarr)
     cityarr.map { |name| city(name) }.compact
   end
+
+  def self.bla
+    'This is stupid method'
+  end
 end

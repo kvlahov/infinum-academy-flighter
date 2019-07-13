@@ -48,8 +48,8 @@ module OpenWeatherMap
       .map { |c| c['name'] }).uniq
     end
 
-    def coldest_nearby(count)
-      nearby(*count).reject { |c| c.id == @id }.min
+    def coldest_nearby(*count)
+      nearby(*count).min
     end
   end
 end

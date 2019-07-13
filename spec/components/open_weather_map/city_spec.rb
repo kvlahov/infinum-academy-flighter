@@ -5,7 +5,7 @@ RSpec.describe OpenWeatherMap::City do
       lat: -16.92,
       lon: 145.77,
       name: 'Cairns',
-      temp_k: 300.15
+      temp_k: 273.15
     )
   end
 
@@ -19,7 +19,7 @@ RSpec.describe OpenWeatherMap::City do
   end
 
   it 'checks temp calculation' do
-    expect(city.temp).to eq(28)
+    expect(city.temp).to eq(0)
   end
 
   it 'checks comparison between this and higher temp city' do
@@ -27,7 +27,7 @@ RSpec.describe OpenWeatherMap::City do
       id: 2_172_797,
       lat: -16.92,
       lon: 145.77,
-      name: 'Cairns',
+      name: 'Zagreb',
       temp_k: 350.15
     )
 
@@ -39,8 +39,8 @@ RSpec.describe OpenWeatherMap::City do
       id: 2_172_797,
       lat: -16.92,
       lon: 145.77,
-      name: 'Cairns',
-      temp_k: 272.15
+      name: 'Zagreb',
+      temp_k: 270.15
     )
     expect(city <=> other).to eq(1)
   end
@@ -51,7 +51,7 @@ RSpec.describe OpenWeatherMap::City do
       lat: -16.92,
       lon: 145.77,
       name: 'Kairo',
-      temp_k: 300.15
+      temp_k: 273.15
     )
     expect(city <=> other).to eq(-1)
   end
@@ -62,7 +62,7 @@ RSpec.describe OpenWeatherMap::City do
       lat: -16.92,
       lon: 145.77,
       name: 'Amsterdam',
-      temp_k: 300.15
+      temp_k: 273.15
     )
     expect(city <=> other).to eq(1)
   end
@@ -73,7 +73,7 @@ RSpec.describe OpenWeatherMap::City do
       lat: -16.92,
       lon: 145.77,
       name: 'Cairns',
-      temp_k: 300.15
+      temp_k: 273.15
     )
     expect(city <=> other).to eq(0)
   end

@@ -11,7 +11,7 @@ module OpenWeatherMap
     end
 
     def temp
-      (@temp_k - 272.15).round(2)
+      (@temp_k - 273.15).round(2)
     end
 
     def <=>(other)

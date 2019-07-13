@@ -20,7 +20,7 @@ RSpec.describe OpenWeatherMap::City do
       name: 'Cairns',
       lat: -16.92,
       lon: 145.77,
-      temp: (300.15 - 272.15)
+      temp: (300.15 - 273.15)
     )
   end
 end

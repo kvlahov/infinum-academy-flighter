@@ -1,3 +1,5 @@
+require 'json'
+
 module OpenWeatherMap
   class City
     include Comparable
@@ -18,6 +20,16 @@ module OpenWeatherMap
       return temp <=> other.temp unless (temp <=> other.temp).zero?
 
       name <=> other.name
+    end
+
+    def self.parse(input)
+      new(
+        id: input['id'],
+        name: input['name'],
+        lat: input['coord']['lat'],
+        lon: input['coord']['lon'],
+        temp_k: input['main']['temp']
+      )
     end
   end
 end

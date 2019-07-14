@@ -10,14 +10,18 @@ module OpenWeatherMap
     OpenWeatherMap::City.parse(response)
   end
 
-  def self.cities(cityarr)
+  def self.cities(cityarr) # rubocop:disable Metrics/AbcSize
     ids = cityarr.map { |name| OpenWeatherMap::Resolver.city_id(name) }.join(',')
-    owm_api_call('group', ids)['list'].map { |c| OpenWeatherMap::City.parse(c) }
+    JSON.parse(
+      Faraday.get('https://api.openweathermap.org/data/2.5/group?id=' +
+      ids + '&appid=' +
+      Rails.application.credentials.open_weather_map_api_key.to_s).body
+    )['list'].map { |c| OpenWeatherMap::City.parse(c) }
   end
 
   private_class_method def self.owm_api_call(type, ids)
     JSON.parse(
-      Faraday.get("https://api.openweathermap.org/data/2.5/#{type}?units=metric&id=" +
+      Faraday.get("https://api.openweathermap.org/data/2.5/#{type}?id=" +
       ids + '&appid=' +
       Rails.application.credentials.open_weather_map_api_key.to_s).body
     )

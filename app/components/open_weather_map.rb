@@ -10,12 +10,13 @@ module OpenWeatherMap
     OpenWeatherMap::City.parse(response)
   end
 
-  def self.cities(cityarr) # rubocop:disable Metrics/AbcSize
+  def self.cities(cityarr)
     ids = cityarr.map { |name| OpenWeatherMap::Resolver.city_id(name) }.join(',')
     JSON.parse(
-      Faraday.get('https://api.openweathermap.org/data/2.5/group?id=' +
-      ids + '&appid=' +
-      Rails.application.credentials.open_weather_map_api_key.to_s).body
+      Faraday.get('https://api.openweathermap.org/data/2.5/group',
+                  { appid: Rails.application.credentials.open_weather_map_api_key.to_s,
+                    id: ids },
+                  'Accept' => 'application/json').body
     )['list'].map { |c| OpenWeatherMap::City.parse(c) }
   end
 

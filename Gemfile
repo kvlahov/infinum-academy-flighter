@@ -49,13 +49,13 @@ group :development do
 end
 
 group :development do
-  gem 'faraday'
   gem 'overcommit', require: false
   gem 'pry-rails'
   gem 'rubocop', '~> 0.71', require: false
   gem 'rubocop-rails', '~> 2.1', require: false
   gem 'rubocop-rspec', '~> 1.33', require: false
 end
+gem 'faraday'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

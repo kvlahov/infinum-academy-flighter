@@ -20,14 +20,6 @@ module OpenWeatherMap
       name <=> other.name
     end
 
-    def eql?(other)
-      @id == other.id
-    end
-
-    def hash
-      @id.hash
-    end
-
     def self.parse(input)
       new(
         id: input['id'],
@@ -40,10 +32,12 @@ module OpenWeatherMap
 
     def nearby(count = 5)
       response =
-        Faraday.get(
-          "https://api.openweathermap.org/data/2.5/find?lat=#{lat}&lon=#{lon}&cnt=#{count}&appid=" +
-          Rails.application.credentials.open_weather_map_api_key
-        )
+        Faraday.get('https://api.openweathermap.org/data/2.5/find',
+                    { appid: Rails.application.credentials.open_weather_map_api_key,
+                      lat: lat,
+                      lon: lon,
+                      cnt: count },
+                    'Accept' => 'application/json')
       JSON.parse(response.body)['list']
           .map { |c| OpenWeatherMap::City.parse(c) }
     end

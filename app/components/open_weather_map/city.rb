@@ -42,10 +42,10 @@ module OpenWeatherMap
       response =
         Faraday.get(
           "https://api.openweathermap.org/data/2.5/find?lat=#{lat}&lon=#{lon}&cnt=#{count}&appid=" +
-          Rails.application.credentials[:open_weather_map_api_key]
+          Rails.application.credentials.open_weather_map_api_key
         )
-      OpenWeatherMap.cities(JSON.parse(response.body)['list']
-      .map { |c| c['name'] }).uniq
+      JSON.parse(response.body)['list']
+          .map { |c| OpenWeatherMap::City.parse(c) }
     end
 
     def coldest_nearby(*count)

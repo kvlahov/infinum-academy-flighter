@@ -17,7 +17,8 @@ module OpenWeatherMap
 
   private_class_method def self.owm_api_call(type, ids)
     JSON.parse(
-      Faraday.get("https://api.openweathermap.org/data/2.5/#{type}?id=" + ids + '&appid=' +
+      Faraday.get("https://api.openweathermap.org/data/2.5/#{type}?units=metric&id=" +
+      ids + '&appid=' +
       Rails.application.credentials.open_weather_map_api_key.to_s).body
     )
   end

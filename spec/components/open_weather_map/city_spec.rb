@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe OpenWeatherMap::City do
   let(:city) do
     described_class.new(
@@ -45,7 +47,8 @@ RSpec.describe OpenWeatherMap::City do
     expect(city <=> other).to eq(1)
   end
 
-  it 'checks comparison between this and same temp city, this name first alphabetically' do
+  it 'checks comparison between this and same temp city,
+      this name first alphabetically' do
     other = described_class.new(
       id: 2_172_797,
       lat: -16.92,
@@ -56,7 +59,8 @@ RSpec.describe OpenWeatherMap::City do
     expect(city <=> other).to eq(-1)
   end
 
-  it 'checks comparison between this and same temp city, this name second alphabetically' do
+  it 'checks comparison between this and same temp city,
+      this name second alphabetically' do
     other = described_class.new(
       id: 2_172_797,
       lat: -16.92,

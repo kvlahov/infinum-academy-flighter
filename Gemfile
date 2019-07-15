@@ -49,6 +49,7 @@ group :development do
 end
 
 group :development do
+  gem 'annotate'
   gem 'overcommit', require: false
   gem 'pry-rails'
   gem 'rubocop', '~> 0.71', require: false

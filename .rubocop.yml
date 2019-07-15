@@ -1,0 +1,40 @@
+require:
+  - rubocop-rails
+  - rubocop-rspec
+
+LineLength:
+  Max: 100
+
+Documentation:
+  Enabled: false
+
+FrozenStringLiteralComment:
+  Enabled: false
+
+WordArray:
+  Enabled: false
+
+SymbolArray:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 10
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+Style/MutableConstant:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'config/routes.rb'
+    - 'spec/**/*_spec.rb'
+
+AllCops:
+  Exclude:
+    - 'bin/**'
+    - 'config/**/*.rb'
+    - 'db/schema.rb'
+    - 'db/seeds.rb'
+    - 'db/migrate/*.rb'

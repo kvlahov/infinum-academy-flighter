@@ -1,0 +1,18 @@
+CommitMsg:
+  CapitalizedSubject:
+    enabled: true
+  HardTabs:
+    enabled: true
+
+PreCommit:
+  RuboCop:
+    enabled: true
+    on_warn: fail
+
+  TrailingWhitespace:
+    enabled: true
+    exclude:
+      - '**/db/structure.sql'
+
+  HardTabs:
+    enabled: true

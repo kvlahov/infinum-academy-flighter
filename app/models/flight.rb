@@ -17,7 +17,7 @@ class Flight < ApplicationRecord
   validates :name, presence: true,
                    uniqueness: { case_sensitive: false, scope: :company_id }
   validates :flys_at, :lands_at, presence: true
-  validates :flys_at_before_lands_at?
+  validate :flys_at_before_lands_at?
   validates :base_price, presence: true,
                          numericality: { greater_than: 0 }
 
@@ -27,8 +27,8 @@ class Flight < ApplicationRecord
   has_many :users, through: :bookings
 
   def flys_at_before_lands_at?
-    return if flys_at < lands_at
+    return if flys_at && lands_at && flys_at < lands_at
 
-    errors.add(:flys_at, 'must be before ' + :lands_at.to_s)
+    errors.add(:flys_at, 'must be before landing time')
   end
 end

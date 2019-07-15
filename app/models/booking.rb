@@ -14,13 +14,13 @@
 class Booking < ApplicationRecord
   validates :no_of_seats, :seat_price, presence: true,
                                        numericality: { greater_than: 0 }
-  validates :flight_not_in_past?
+  validate :flight_not_in_past?
   belongs_to :user
   belongs_to :flight
 
   def flight_not_in_past?
-    return if flight.flys_at > DateTime.current
+    return if flight && flight.flys_at > DateTime.current
 
-    errors['flights.flys_at'] << 'flights can\'t be in the past'
+    errors.add(:flight, 'flights can\'t be in the past')
   end
 end

@@ -18,8 +18,8 @@ class Flight < ApplicationRecord
                    uniqueness: { case_sensitive: false, scope: :company_id }
   validates :flys_at, :lands_at, presence: true
   validate :flys_at_before_lands_at?
-  validates :base_price, presence: true,
-                         numericality: { greater_than: 0 }
+  validates :base_price, :no_of_seats, presence: true,
+                                       numericality: { greater_than: 0 }
 
   belongs_to :company
 

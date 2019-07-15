@@ -15,7 +15,7 @@ class User < ApplicationRecord
                     uniqueness: { case_sensitive: false },
                     format: /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/
   validates :first_name, presence: true,
-                         length: { minimum: 3 }
+                         length: { minimum: 2 }
 
   has_many :bookings, dependent: :destroy
   has_many :flights, through: :bookings

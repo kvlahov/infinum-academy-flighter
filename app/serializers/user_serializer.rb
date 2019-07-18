@@ -1,8 +1,7 @@
 class UserSerializer < ActiveModel::Serializer
-  attrbute :id
+  attribute :id
   attribute :first_name
   attribute :last_name
-  attrbute :email
-  attribute :bookings, :flights
-  attribute :created_at, :updated_at
+  attribute :email
+  attributes :created_at, :updated_at
 end

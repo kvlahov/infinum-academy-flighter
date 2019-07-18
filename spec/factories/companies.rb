@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :company do
-    name { 'Croatia Airlines' }
+    sequence(:name) { |n| "Company Name#{n}" }
   end
 end

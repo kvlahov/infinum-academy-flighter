@@ -19,7 +19,7 @@ class Booking < ApplicationRecord
   belongs_to :flight
 
   def flight_not_in_past?
-    return if flight && flight.flys_at > DateTime.current
+    return if flight&.flys_at&.future?
 
     errors.add(:flight, 'flights can\'t be in the past')
   end

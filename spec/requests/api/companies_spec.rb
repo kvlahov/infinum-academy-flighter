@@ -1,13 +1,13 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
-  let(:companies) { FactoryBot.create_list(:company, 3) }
+  let!(:companies) { FactoryBot.create_list(:company, 3) }
 
   describe 'GET /companies' do
     it 'returns list of companies' do
       get '/api/companies'
 
       expect(response).to have_http_status(:ok)
-      expect(response.body.count).to eq(3)
+      expect(json_body['companies'].count).to eq(3)
     end
   end
 
@@ -30,7 +30,7 @@ RSpec.describe 'Companies API', type: :request do
 
         expect(response).to have_http_status(:created)
         expect(json_body['company']).to include('name' => 'Emirates')
-        expect(count).to eq(count + 1)
+        expect(Company.all.count).to eq(count + 1)
       end
     end
 
@@ -49,20 +49,20 @@ RSpec.describe 'Companies API', type: :request do
   describe 'PUT /companies/:id' do
     context 'with valid parameters' do
       it 'creates company' do
-        put "/api/companies#{companies.first.id}",
-            params: { company: { name: 'Emirates' } }.to_json
+        put "/api/companies/#{companies.first.id}",
+            params: { company: { name: 'Emirates' } }.to_json,
+            headers: api_headers
 
-        expect(response).to have_http_status(:no_content)
-        expect do
-          Company.find(companies.first.id).name
-        end.to eq('Emirates')
+        expect(response).to have_http_status(:ok)
+        expect(Company.find(companies.first.id).name).to eq('Emirates')
       end
     end
 
     context 'with invalid parameters' do
       it 'returns 400 bad request' do
-        put '/api/companies',
-            params: { id: companies.first.id, company: { name: '' } }.to_json
+        put "/api/companies/#{companies.first.id}",
+            params: { company: { name: '' } }.to_json,
+            headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -75,8 +75,8 @@ RSpec.describe 'Companies API', type: :request do
       count = Company.all.count
       delete "/api/companies/#{companies.last.id}"
 
-      expect(result).to have_http_status(:no_content)
-      expect(count).to eq(count - 1)
+      expect(response).to have_http_status(:no_content)
+      expect(Company.all.count).to eq(count - 1)
     end
   end
 end

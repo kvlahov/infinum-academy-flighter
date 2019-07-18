@@ -11,7 +11,7 @@ module Api
       if booking.save
         render json: booking, status: :created
       else
-        render json: { errors: user.error }, status: :bad_request
+        render json: { errors: booking.errors }, status: :bad_request
       end
     end
 
@@ -41,7 +41,11 @@ module Api
     private
 
     def booking_params
-      params.require(:booking).permit(:no_of_seats, :seat_price, :user, :flight)
+      params.require(:booking).permit(
+        :no_of_seats, :seat_price,
+        user_id: :id,
+        flight_id: :id
+      )
     end
   end
 end

@@ -31,13 +31,13 @@ RSpec.describe 'Flights API', type: :request do
                {
                  name: 'Zagreb-Split', flys_at: 5.hours.from_now,
                  lands_at: 6.hours.from_now, base_price: 120,
-                 no_of_seats: 50, company: FactoryBot.create(:company)
+                 no_of_seats: 50, company_id: FactoryBot.create(:company).id
                }
              }.to_json,
              headers: api_headers
 
         expect(response).to have_http_status(:created)
-        expect(json_body['flight']).to include('name' => 'Zagreb-Split', 'base_price': 120)
+        expect(json_body['flight']).to include('name' => 'Zagreb-Split', 'base_price' => 120)
         expect(Flight.all.count).to eq(count + 1)
       end
     end

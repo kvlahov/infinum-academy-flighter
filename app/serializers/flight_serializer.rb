@@ -7,5 +7,5 @@ class FlightSerializer < ActiveModel::Serializer
   attribute :lands_at
   attributes :created_at, :updated_at
 
-  belongs_to :company, serializer: CompanySerializer
+  belongs_to :company
 end

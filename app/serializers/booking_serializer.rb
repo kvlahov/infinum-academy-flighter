@@ -4,6 +4,6 @@ class BookingSerializer < ActiveModel::Serializer
   attribute :seat_price
   attributes :created_at, :updated_at
 
-  belongs_to :flight, serializer: FlightSerializer
-  belongs_to :user, serializer: UserSerializer
+  belongs_to :flight
+  belongs_to :user
 end

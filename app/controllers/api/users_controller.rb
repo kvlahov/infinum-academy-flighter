@@ -2,7 +2,7 @@ module Api
   class UsersController < ApplicationController
     # GET /api/users
     def index
-      render json: User.all, each_serializer: UserSerializer
+      render json: User.all
     end
 
     # POST   /api/users
@@ -18,14 +18,14 @@ module Api
     # GET    /api/users/:id
     def show
       user = User.find(params[:id])
-      render json: user, serializer: UserSerializer, status: :ok
+      render json: user
     end
 
     # PUT    /api/users/:id
     def update
       user = User.find(params[:id])
       if user.update(user_params)
-        render json: user, status: :ok
+        render json: user
       else
         render json: { errors: user.errors }, status: :bad_request
       end
@@ -33,9 +33,8 @@ module Api
 
     # DELETE /api/users/:id
     def destroy
-      user = User.find(params[:id])
-      user.destroy
-      render json: {}, status: :no_content
+      User.find(params[:id]).destroy
+      head :no_content
     end
 
     private

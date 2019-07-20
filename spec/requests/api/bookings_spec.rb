@@ -37,7 +37,7 @@ RSpec.describe 'Booking API', type: :request do
              headers: api_headers
 
         expect(response).to have_http_status(:created)
-        expect(json_body['booking']).to include('no_of_seats' => '80', 'seat_price': 120)
+        expect(json_body['booking']).to include('no_of_seats' => 80, 'seat_price' => 120)
         expect(Booking.all.count).to eq(count + 1)
       end
     end

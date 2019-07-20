@@ -2,7 +2,7 @@ module Api
   class CompaniesController < ApplicationController
     # GET /api/companies
     def index
-      render json: Company.all, each_serializer: CompanySerializer
+      render json: Company.all
     end
 
     # POST   /api/companies
@@ -18,14 +18,14 @@ module Api
     # GET    /api/companies/:id
     def show
       company = Company.find(params[:id])
-      render json: company, serializer: CompanySerializer, status: :ok
+      render json: company
     end
 
     # PUT    /api/companies/:id
     def update
       company = Company.find(params[:id])
       if company.update(company_params)
-        render json: company, status: :ok
+        render json: company
       else
         render json: { errors: company.errors }, status: :bad_request
       end
@@ -33,9 +33,8 @@ module Api
 
     # DELETE /api/companies/:id
     def destroy
-      company = Company.find(params[:id])
-      company.destroy
-      render json: {}, status: :no_content
+      Company.find(params[:id]).destroy
+      head :no_content
     end
 
     private

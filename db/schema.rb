@@ -52,9 +52,9 @@ ActiveRecord::Schema.define(version: 2019_07_22_144800) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "password_digest"
-    t.string "token"
+    t.string "token", default: ""
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["token"], name: "index_users_on_token"
+    t.index ["token"], name: "index_users_on_token", unique: true
   end
 
   add_foreign_key "bookings", "flights"

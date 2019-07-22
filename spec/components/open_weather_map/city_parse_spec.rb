@@ -1,5 +1,3 @@
-require 'json'
-
 RSpec.describe OpenWeatherMap::City do
   let(:data) do
     '{"coord":{"lon":145.77,"lat":-16.92},

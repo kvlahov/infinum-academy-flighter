@@ -1,4 +1,4 @@
-# == Schema Information
+# == Schemarequire 'json' Information
 #
 # Table name: flights
 #

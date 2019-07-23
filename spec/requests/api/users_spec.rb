@@ -29,7 +29,8 @@ RSpec.describe 'Users API', type: :request do
         expect do
           post '/api/users',
                params: {
-                 user: { first_name: 'Stipe', last_name: 'Stipic', email: 'stipe@mail.hr' }
+                 user: { first_name: 'Stipe', last_name: 'Stipic',
+                         email: 'stipe@mail.hr', password: 'abc123' }
                }.to_json,
                headers: api_headers
         end.to change { User.all.count }.by(1)
@@ -55,7 +56,7 @@ RSpec.describe 'Users API', type: :request do
     context 'with valid parameters' do
       let(:user) { FactoryBot.create(:user, first_name: 'Shime') }
 
-      it 'creates user' do
+      it 'updates user' do
         expect do
           put "/api/users/#{user.id}",
               params: { user: { first_name: 'Stipe' } }.to_json,

@@ -24,7 +24,7 @@ module Api
     # PUT    /api/users/:id
     def update
       user = User.find(params[:id])
-      if user.update(user_params) && params[:password].present?
+      if user.update(user_params)
         render json: user
       else
         render json: { errors: user.errors }, status: :bad_request

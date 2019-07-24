@@ -7,6 +7,8 @@ module Api
 
     # POST   /api/flights
     def create
+      authorize flight
+
       flight = Flight.new(flight_params)
       if flight.save
         render json: flight, status: :created
@@ -23,6 +25,8 @@ module Api
 
     # PUT    /api/flights/:id
     def update
+      authorize flight
+
       flight = Flight.find(params[:id])
       if flight.update(flight_params)
         render json: flight
@@ -33,6 +37,8 @@ module Api
 
     # DELETE /api/flights/:id
     def destroy
+      authorize flight
+
       Flight.find(params[:id]).destroy
       head :no_content
     end

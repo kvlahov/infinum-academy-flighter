@@ -7,6 +7,8 @@ module Api
 
     # POST   /api/companies
     def create
+      authorize company
+
       company = Company.new(company_params)
       if company.save
         render json: company, status: :created
@@ -23,6 +25,8 @@ module Api
 
     # PUT    /api/companies/:id
     def update
+      authorize company
+
       company = Company.find(params[:id])
       if company.update(company_params)
         render json: company
@@ -33,6 +37,8 @@ module Api
 
     # DELETE /api/companies/:id
     def destroy
+      authorize company
+
       Company.find(params[:id]).destroy
       head :no_content
     end

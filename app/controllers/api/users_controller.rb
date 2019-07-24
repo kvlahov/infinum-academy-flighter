@@ -1,7 +1,10 @@
 module Api
   class UsersController < ApplicationController
+    before_action :authenticate, except: :create
+
     # GET /api/users
     def index
+      authorize user
       render json: User.all
     end
 
@@ -17,12 +20,16 @@ module Api
 
     # GET    /api/users/:id
     def show
+      policy_scope(User)
+
       user = User.find(params[:id])
       render json: user
     end
 
     # PUT    /api/users/:id
     def update
+      policy_scope(User)
+
       user = User.find(params[:id])
       if user.update(user_params)
         render json: user
@@ -33,6 +40,8 @@ module Api
 
     # DELETE /api/users/:id
     def destroy
+      policy_scope(User)
+
       User.find(params[:id]).destroy
       head :no_content
     end
@@ -40,7 +49,14 @@ module Api
     private
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password)
+      params.require(:user).permit(policy(user).permitted_attributes)
+    end
+
+    def authenticate
+      auth_token = request.headers['Authorization']
+      return unless User.find_by(token: auth_token).nil?
+
+      render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
     end
   end
 end

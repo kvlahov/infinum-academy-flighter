@@ -1,7 +1,5 @@
 module Api
   class BookingsController < ApplicationController
-    include Api::AuthenticateHelper
-
     before_action :authenticate
 
     # GET /api/bookings

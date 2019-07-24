@@ -10,5 +10,9 @@ module TestHelpers
         'Accept': 'application/json'
       }
     end
+
+    def auth_headers(auth_token)
+      api_headers.merge('Authorization': auth_token)
+    end
   end
 end

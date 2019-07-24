@@ -31,7 +31,7 @@ RSpec.describe 'Companies API', type: :request do
         expect do
           post '/api/companies',
                params: { company: { name: 'Emirates' } }.to_json,
-               headers: api_headers.merge('Authorization': 'abc123')
+               headers: auth_headers('abc123')
         end.to change { Company.all.count }.by(1)
 
         expect(response).to have_http_status(:created)
@@ -45,7 +45,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 bad request' do
         post '/api/companies',
              params: { company: { name: '' } }.to_json,
-             headers: api_headers.merge('Authorization': 'abc123')
+             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -58,7 +58,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 403 forbidden' do
         post '/api/companies',
              params: { company: { name: 'NewName' } }.to_json,
-             headers: api_headers.merge('Authorization': 'abc123')
+             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:forbidden)
         expect(json_body['errors']).to include('resource')
@@ -71,7 +71,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 401 unauthorized' do
         post '/api/companies',
              params: { company: { name: 'NewName' } }.to_json,
-             headers: api_headers.merge('Authorization': 'abc123')
+             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:unauthorized)
         expect(json_body['errors']).to include('token')
@@ -89,7 +89,7 @@ RSpec.describe 'Companies API', type: :request do
         expect do
           put "/api/companies/#{company.id}",
               params: { company: { name: 'Emirates' } }.to_json,
-              headers: api_headers.merge('Authorization': 'abc123')
+              headers: auth_headers('abc123')
         end.to change { Company.find(company.id).name }.to('Emirates')
 
         expect(response).to have_http_status(:ok)
@@ -105,7 +105,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 bad request' do
         put "/api/companies/#{company.id}",
             params: { company: { name: '' } }.to_json,
-            headers: api_headers.merge('Authorization': 'abc123')
+            headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -120,7 +120,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 403 forbidden' do
         put "/api/companies/#{company.id}",
             params: { company: { name: '' } }.to_json,
-            headers: api_headers.merge('Authorization': 'abc123')
+            headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:forbidden)
         expect(json_body['errors']).to include('resource')
@@ -135,7 +135,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 401 unauthorized' do
         put "/api/companies/#{company.id}",
             params: { company: { name: '' } }.to_json,
-            headers: api_headers.merge('Authorization': 'abc123')
+            headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:unauthorized)
         expect(json_body['errors']).to include('token')

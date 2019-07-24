@@ -4,8 +4,9 @@ module Api
 
     # GET /api/users
     def index
-      authorize user
-      render json: User.all
+      users = policy_scope(User)
+
+      render json: users
     end
 
     # POST   /api/users
@@ -20,17 +21,17 @@ module Api
 
     # GET    /api/users/:id
     def show
-      policy_scope(User)
-
       user = User.find(params[:id])
+      authorize user
+
       render json: user
     end
 
     # PUT    /api/users/:id
     def update
-      policy_scope(User)
-
       user = User.find(params[:id])
+      authorize user
+
       if user.update(user_params)
         render json: user
       else
@@ -40,23 +41,17 @@ module Api
 
     # DELETE /api/users/:id
     def destroy
-      policy_scope(User)
+      user = User.find(params[:id])
+      authorize user
 
-      User.find(params[:id]).destroy
+      user.destroy
       head :no_content
     end
 
     private
 
     def user_params
-      params.require(:user).permit(policy(user).permitted_attributes)
-    end
-
-    def authenticate
-      auth_token = request.headers['Authorization']
-      return unless User.find_by(token: auth_token).nil?
-
-      render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
+      params.require(:user).permit(policy(User).permitted_attributes)
     end
   end
 end

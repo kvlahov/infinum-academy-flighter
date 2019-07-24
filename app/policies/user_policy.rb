@@ -9,8 +9,16 @@ class UserPolicy < ApplicationPolicy
     end
   end
 
-  def index?
-    user.admin?
+  def show?
+    user.admin? || record == user
+  end
+
+  def update?
+    user.admin? || record.token == user.token
+  end
+
+  def destroy?
+    user.admin? || record.token == user.token
   end
 
   def permitted_attributes

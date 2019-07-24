@@ -1,5 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
+    before_action :authenticate, except: [:index, :show]
+
     # GET /api/companies
     def index
       render json: Company.all
@@ -7,9 +9,9 @@ module Api
 
     # POST   /api/companies
     def create
+      company = Company.new(company_params)
       authorize company
 
-      company = Company.new(company_params)
       if company.save
         render json: company, status: :created
       else
@@ -25,9 +27,9 @@ module Api
 
     # PUT    /api/companies/:id
     def update
+      company = Company.find(params[:id])
       authorize company
 
-      company = Company.find(params[:id])
       if company.update(company_params)
         render json: company
       else
@@ -37,9 +39,10 @@ module Api
 
     # DELETE /api/companies/:id
     def destroy
+      company = Company.find(params[:id])
       authorize company
 
-      Company.find(params[:id]).destroy
+      company.destroy
       head :no_content
     end
 

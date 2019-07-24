@@ -4,9 +4,21 @@ class BookingPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       else
-        scope.where(user: { token: user.token })
+        scope.where(user: user)
       end
     end
+  end
+
+  def show?
+    user.admin? || record.user == user
+  end
+
+  def update?
+    user.admin? || record.user == user
+  end
+
+  def destroy?
+    user.admin? || record.user == user
   end
 
   def permitted_attributes

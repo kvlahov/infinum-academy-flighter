@@ -1,18 +1,20 @@
 module Api
   class BookingsController < ApplicationController
+    include Api::AuthenticateHelper
+
     before_action :authenticate
 
     # GET /api/bookings
     def index
-      policy_scope(Booking)
+      bookings = policy_scope(Booking)
 
-      render json: Booking.all
+      render json: bookings
     end
 
     # POST   /api/bookings
     def create
       booking = Booking.new(booking_params)
-      booking.user = current_user
+      booking.user = pundit_user
 
       if booking.save
         render json: booking, status: :created
@@ -23,17 +25,17 @@ module Api
 
     # GET    /api/bookings/:id
     def show
-      policy_scope(Booking)
-
       booking = Booking.find(params[:id])
+      authorize booking
+
       render json: booking
     end
 
     # PUT    /api/bookings/:id
     def update
-      policy_scope(Booking)
-
       booking = Booking.find(params[:id])
+      authorize booking
+
       if booking.update(booking_params)
         render json: booking
       else
@@ -43,23 +45,17 @@ module Api
 
     # DELETE /api/bookings/:id
     def destroy
-      policy_scope(Booking)
+      booking = Booking.find(params[:id])
+      authorize booking
 
-      Booking.find(params[:id]).destroy
+      booking.destroy
       head :no_content
     end
 
     private
 
     def booking_params
-      params.require(:booking).permit(policy(booking).permitted_attributes)
-    end
-
-    def authenticate
-      auth_token = request.headers['Authorization']
-      return unless User.find_by(token: auth_token).nil?
-
-      render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
+      params.require(:booking).permit(policy(Booking).permitted_attributes)
     end
   end
 end

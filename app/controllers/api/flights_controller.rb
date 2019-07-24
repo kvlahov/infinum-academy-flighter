@@ -1,5 +1,7 @@
 module Api
   class FlightsController < ApplicationController
+    before_action :authenticate, except: [:index, :show]
+
     # GET /api/flights
     def index
       render json: Flight.all
@@ -7,9 +9,9 @@ module Api
 
     # POST   /api/flights
     def create
+      flight = Flight.new(flight_params)
       authorize flight
 
-      flight = Flight.new(flight_params)
       if flight.save
         render json: flight, status: :created
       else
@@ -25,9 +27,9 @@ module Api
 
     # PUT    /api/flights/:id
     def update
+      flight = Flight.find(params[:id])
       authorize flight
 
-      flight = Flight.find(params[:id])
       if flight.update(flight_params)
         render json: flight
       else
@@ -37,9 +39,10 @@ module Api
 
     # DELETE /api/flights/:id
     def destroy
+      flight = Flight.find(params[:id])
       authorize flight
 
-      Flight.find(params[:id]).destroy
+      flight.destroy
       head :no_content
     end
 

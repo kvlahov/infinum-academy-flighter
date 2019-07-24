@@ -14,6 +14,19 @@ RSpec.describe 'Session API', type: :request do
         expect(response).to have_http_status(:created)
       end
     end
+
+    context 'with invalid credentials' do
+      let!(:user) { FactoryBot.create(:user, email: 'myusr@mail.com', password: 'usr123') }
+
+      it 'returns 400 bad request' do
+        post '/api/session',
+             params: { session: { email: user.email, password: 'wrongpwd' } }.to_json,
+             headers: api_headers
+
+        expect(json_body['errors']).to include('credentials')
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
   end
 
   describe 'DELETE /session' do

@@ -9,7 +9,8 @@
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  password_digest :string
-#  token           :string
+#  token           :string           default("")
+#  role            :string
 #
 
 class User < ApplicationRecord

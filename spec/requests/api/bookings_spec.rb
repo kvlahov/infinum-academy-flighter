@@ -118,7 +118,7 @@ RSpec.describe 'Booking API', type: :request do
                   }
                 }.to_json,
                headers: auth_headers('abc123')
-        end.to change { Booking.all.count }.by(1)
+        end.to change { user.bookings.count }.by(1)
 
         expect(response).to have_http_status(:created)
         expect(json_body['booking']).to include('no_of_seats' => 80, 'seat_price' => 120)

@@ -224,7 +224,7 @@ RSpec.describe 'Booking API', type: :request do
           put "/api/bookings/#{booking.id}",
               params: { booking: { user_id: user.id } }.to_json,
               headers: auth_headers('abc123')
-        end.not_to change { Booking.find(booking.id).user_id }
+        end.not_to(change { Booking.find(booking.id).user_id })
       end
     end
 
@@ -237,7 +237,7 @@ RSpec.describe 'Booking API', type: :request do
           put "/api/bookings/#{booking.id}",
               params: { booking: { user_id: user.id } }.to_json,
               headers: auth_headers('abc123')
-        end.to change { Booking.find(booking.id).user_id }
+        end.to(change { Booking.find(booking.id).user_id })
 
         expect(response).to have_http_status(:ok)
       end
@@ -284,7 +284,7 @@ RSpec.describe 'Booking API', type: :request do
         expect do
           delete "/api/bookings/#{booking.id}",
                  headers: { 'Authorization': 'abc123' }
-        end.not_to change { User.all.count }
+        end.to change { Booking.all.count }.by(0)
 
         expect(response).to have_http_status(:forbidden)
         expect(json_body['errors']).to include('resource')

@@ -194,7 +194,7 @@ RSpec.describe 'Users API', type: :request do
           put "/api/users/#{user.id}",
               params: { user: { role: 'admin' } }.to_json,
               headers: auth_headers('abc123')
-        end.not_to change { User.find(user.id).role }
+        end.not_to change(User.find(user.id), :role)
       end
     end
 
@@ -253,7 +253,7 @@ RSpec.describe 'Users API', type: :request do
         expect do
           delete "/api/users/#{user.id}",
                  headers: { 'Authorization': 'abc123' }
-        end.not_to change { User.all.count }
+        end.to change { User.all.count }.by(0)
 
         expect(response).to have_http_status(:forbidden)
         expect(json_body['errors']).to include('resource')

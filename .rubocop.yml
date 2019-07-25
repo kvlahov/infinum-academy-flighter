@@ -38,7 +38,3 @@ AllCops:
     - 'db/schema.rb'
     - 'db/seeds.rb'
     - 'db/migrate/*.rb'
-
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - "spec/**/*"

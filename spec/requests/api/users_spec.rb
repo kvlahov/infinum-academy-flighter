@@ -29,7 +29,7 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when unauthenticated request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         get '/api/users',
@@ -45,10 +45,10 @@ RSpec.describe 'Users API', type: :request do
     context 'when user is admin' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
-      let!(:users) { FactoryBot.create_list(:user, 3) }
+      let!(:user) { FactoryBot.create(:user) }
 
       it 'returns single user' do
-        get "/api/users/#{users.first.id}",
+        get "/api/users/#{user.id}",
             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:ok)
@@ -71,10 +71,10 @@ RSpec.describe 'Users API', type: :request do
     context 'when user is not admin, get other' do
       before { FactoryBot.create(:user, token: 'abc123') }
 
-      let!(:users) { FactoryBot.create_list(:user, 3) }
+      let!(:other_user) { FactoryBot.create(:user) }
 
       it 'returns 403 forbidden' do
-        get "/api/users/#{users.first.id}",
+        get "/api/users/#{other_user.id}",
             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:forbidden)
@@ -83,7 +83,7 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when user is not authenticated' do
-      let(:user) { FactoryBot.create(:user) }
+      let(:user) { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         get "/api/users/#{user.id}",
@@ -97,13 +97,15 @@ RSpec.describe 'Users API', type: :request do
 
   describe 'POST /users' do
     context 'with valid parameters' do
+      let(:valid_parameters) do
+        { first_name: 'Stipe', last_name: 'Stipic',
+          email: 'stipe@mail.hr', password: 'abc123' }
+      end
+
       it 'creates user' do
         expect do
           post '/api/users',
-               params: {
-                 user: { first_name: 'Stipe', last_name: 'Stipic',
-                         email: 'stipe@mail.hr', password: 'abc123' }
-               }.to_json,
+               params: { user: valid_parameters }.to_json,
                headers: api_headers
         end.to change { User.all.count }.by(1)
 
@@ -113,9 +115,11 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'with invalid parameters' do
+      let(:invalid_parameters) { { first_name: '' } }
+
       it 'returns 400 bad request' do
         post '/api/users',
-             params: { user: { first_name: '' } }.to_json,
+             params: { user: invalid_parameters }.to_json,
              headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
@@ -126,14 +130,15 @@ RSpec.describe 'Users API', type: :request do
 
   describe 'PUT /users/:id' do
     context 'with valid parameters as admin' do
-      let(:user) { FactoryBot.create(:user, first_name: 'Shime') }
-
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
+
+      let(:user) { FactoryBot.create(:user, first_name: 'Shime') }
+      let(:valid_parameters) { { first_name: 'Stipe' } }
 
       it 'updates user' do
         expect do
           put "/api/users/#{user.id}",
-              params: { user: { first_name: 'Stipe' } }.to_json,
+              params: { user: valid_parameters }.to_json,
               headers: auth_headers('abc123')
         end.to change { User.find(user.id).first_name }.to('Stipe')
 
@@ -142,13 +147,14 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'with invalid parameters as admin' do
-      let(:user) { FactoryBot.create(:user) }
-
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
+
+      let(:user) { FactoryBot.create(:user) }
+      let(:invalid_parameters) { { first_name: '' } }
 
       it 'returns 400 bad request' do
         put "/api/users/#{user.id}",
-            params: { user: { first_name: '' } }.to_json,
+            params: { user: invalid_parameters }.to_json,
             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
@@ -158,11 +164,12 @@ RSpec.describe 'Users API', type: :request do
 
     context 'when user updates self' do
       let(:user) { FactoryBot.create(:user, first_name: 'Batman', token: 'abc123') }
+      let(:valid_parameters) { { first_name: 'Stipe' } }
 
       it 'updates user' do
         expect do
           put "/api/users/#{user.id}",
-              params: { user: { first_name: 'Stipe' } }.to_json,
+              params: { user: valid_parameters }.to_json,
               headers: auth_headers('abc123')
         end.to change { User.find(user.id).first_name }.to('Stipe')
 
@@ -188,7 +195,7 @@ RSpec.describe 'Users API', type: :request do
     context 'when user updates role' do
       let(:user) { FactoryBot.create(:user, first_name: 'Batman', token: 'abc123') }
 
-      it "doesn't update role" do
+      it 'fails to update role' do
         expect do
           put "/api/users/#{user.id}",
               params: { user: { role: 'admin' } }.to_json,
@@ -214,7 +221,7 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when unauthenticated request' do
-      let(:user) { FactoryBot.create(:user) }
+      let(:user) { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         put "/api/users/#{user.id}",
@@ -260,7 +267,7 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when unauthenticated request' do
-      let!(:user) { FactoryBot.create(:user) }
+      let!(:user) { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         delete "/api/users/#{user.id}"

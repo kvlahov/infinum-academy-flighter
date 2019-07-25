@@ -1,8 +1,9 @@
 module Api
   class SessionController < ApplicationController
-    before_action :authenticate, only: :destroy
+    skip_before_action :authenticate, only: :create
 
     def create
+      authorize Session
       user = User.find_by(email: params[:session][:email])
       if user&.authenticate(params[:session][:password])
         render json: { session: {
@@ -14,8 +15,8 @@ module Api
     end
 
     def destroy
-      token = request.headers['Authorization']
-      user = User.find_by(token: token)
+      authorize Session
+      user = User.find_by(token: request.headers['Authorization'])
       user.regenerate_token
       user.save
       head :no_content

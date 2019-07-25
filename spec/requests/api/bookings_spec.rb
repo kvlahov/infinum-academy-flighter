@@ -19,7 +19,7 @@ RSpec.describe 'Booking API', type: :request do
     context 'when user is not admin' do
       let(:user) { FactoryBot.create(:user, first_name: 'User', token: 'abc123') }
 
-      before { FactoryBot.create(:booking, user_id: user.id) }
+      before { FactoryBot.create(:booking, user: user) }
 
       it 'returns own booking' do
         get '/api/bookings',
@@ -32,7 +32,7 @@ RSpec.describe 'Booking API', type: :request do
     end
 
     context 'when unauthenticated request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         get '/api/bookings',
@@ -48,10 +48,10 @@ RSpec.describe 'Booking API', type: :request do
     context 'when user is admin' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
-      let!(:bookings) { FactoryBot.create_list(:booking, 3) }
+      let!(:booking) { FactoryBot.create(:booking) }
 
       it 'returns single booking' do
-        get "/api/bookings/#{bookings.first.id}",
+        get "/api/bookings/#{booking.id}",
             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:ok)
@@ -61,7 +61,7 @@ RSpec.describe 'Booking API', type: :request do
 
     context 'when user is not admin, get own booking' do
       let(:user) { FactoryBot.create(:user, token: 'abc123') }
-      let(:booking) { FactoryBot.create(:booking, user_id: user.id) }
+      let(:booking) { FactoryBot.create(:booking, user: user) }
 
       it 'returns this user info' do
         get "/api/bookings/#{booking.id}",
@@ -87,7 +87,7 @@ RSpec.describe 'Booking API', type: :request do
     end
 
     context 'when user is not authenticated' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let(:booking) { FactoryBot.create(:booking) }
 
@@ -104,14 +104,15 @@ RSpec.describe 'Booking API', type: :request do
   describe 'POST /bookings' do
     context 'when user with valid parameters' do
       let!(:user) { FactoryBot.create(:user, token: 'abc123') }
-      let(:attributes) do
-        { no_of_seats: 80, seat_price: 120, flight_id: FactoryBot.create(:flight).id }
+      let(:flight) { FactoryBot.create(:flight) }
+      let(:valid_parameters) do
+        { no_of_seats: 80, seat_price: 120, flight_id: flight.id }
       end
 
       it 'creates booking' do
         expect do
           post '/api/bookings',
-               params: { booking: attributes }.to_json,
+               params: { booking: valid_parameters }.to_json,
                headers: auth_headers('abc123')
         end.to change { user.bookings.count }.by(1)
 
@@ -124,29 +125,32 @@ RSpec.describe 'Booking API', type: :request do
     context 'when admin with valid parameters' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
-      let!(:other) { FactoryBot.create(:user) }
-      let(:attributes) do
+      let!(:other_user) { FactoryBot.create(:user) }
+      let(:flight) { FactoryBot.create(:flight) }
+      let(:valid_parameters) do
         { no_of_seats: 80,
           seat_price: 120,
-          flight_id: FactoryBot.create(:flight).id,
-          user_id: other.id }
+          flight_id: flight.id,
+          user_id: other_user.id }
       end
 
       it 'creates booking for other user' do
         expect do
           post '/api/bookings',
-               params: { booking: attributes }.to_json,
+               params: { booking: valid_parameters }.to_json,
                headers: auth_headers('abc123')
-        end.to(change { other.bookings.count }.by(1))
+        end.to(change { other_user.bookings.count }.by(1))
       end
     end
 
     context 'when user with invalid parameters' do
       before { FactoryBot.create(:user, token: 'abc123') }
 
+      let(:invalid_parameters) { { no_of_seats: '' } }
+
       it 'returns 400 bad request' do
         post '/api/bookings',
-             params: { booking: { no_of_seats: '' } }.to_json,
+             params: { booking: invalid_parameters }.to_json,
              headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
@@ -155,7 +159,7 @@ RSpec.describe 'Booking API', type: :request do
     end
 
     context 'when user is not authenticated' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         post '/api/bookings',
@@ -171,13 +175,14 @@ RSpec.describe 'Booking API', type: :request do
   describe 'PUT /bookings/:id' do
     context 'with valid parameters as admin' do
       let(:booking) { FactoryBot.create(:booking, no_of_seats: '20') }
+      let(:valid_parameters) { { no_of_seats: '80' } }
 
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
       it 'updates booking' do
         expect do
           put "/api/bookings/#{booking.id}",
-              params: { booking: { no_of_seats: '80' } }.to_json,
+              params: { booking: valid_parameters }.to_json,
               headers: auth_headers('abc123')
         end.to change { Booking.find(booking.id).no_of_seats }.to(80)
 
@@ -187,12 +192,13 @@ RSpec.describe 'Booking API', type: :request do
 
     context 'with invalid parameters as admin' do
       let(:booking) { FactoryBot.create(:booking) }
+      let(:invalid_parameters) { { no_of_seats: '' } }
 
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
       it 'returns 400 bad request' do
         put "/api/bookings/#{booking.id}",
-            params: { booking: { no_of_seats: '' } }.to_json,
+            params: { booking: invalid_parameters }.to_json,
             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
@@ -202,12 +208,13 @@ RSpec.describe 'Booking API', type: :request do
 
     context 'when user updates own booking' do
       let(:user) { FactoryBot.create(:user, first_name: 'Batman', token: 'abc123') }
-      let(:booking) { FactoryBot.create(:booking, no_of_seats: '20', user_id: user.id) }
+      let(:booking) { FactoryBot.create(:booking, no_of_seats: '20', user: user) }
+      let(:valid_parameters) { { no_of_seats: '80' } }
 
       it 'succesfuly updates booking' do
         expect do
           put "/api/bookings/#{booking.id}",
-              params: { booking: { no_of_seats: '80' } }.to_json,
+              params: { booking: valid_parameters }.to_json,
               headers: auth_headers('abc123')
         end.to change { Booking.find(booking.id).no_of_seats }.to(80)
 
@@ -259,7 +266,7 @@ RSpec.describe 'Booking API', type: :request do
     end
 
     context 'when unauthenticated request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let(:booking) { FactoryBot.create(:booking) }
 
@@ -275,7 +282,7 @@ RSpec.describe 'Booking API', type: :request do
   end
 
   describe 'DELETE /bookings/:id' do
-    context 'when admin deletes user' do
+    context 'when admin deletes booking' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
       let!(:booking) { FactoryBot.create(:booking) }
@@ -307,7 +314,7 @@ RSpec.describe 'Booking API', type: :request do
     end
 
     context 'when unauthenticated request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let!(:booking) { FactoryBot.create(:booking) }
 

@@ -1,16 +1,17 @@
 module Api
   class FlightsController < ApplicationController
-    before_action :authenticate, except: [:index, :show]
+    skip_before_action :authenticate, only: [:index, :show]
 
     # GET /api/flights
     def index
+      authorize Flight
       render json: Flight.all
     end
 
     # POST   /api/flights
     def create
+      authorize Flight
       flight = Flight.new(flight_params)
-      authorize flight
 
       if flight.save
         render json: flight, status: :created
@@ -22,6 +23,8 @@ module Api
     # GET    /api/flights/:id
     def show
       flight = Flight.find(params[:id])
+      authorize flight
+
       render json: flight
     end
 

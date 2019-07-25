@@ -1,9 +1,8 @@
 module Api
   class BookingsController < ApplicationController
-    before_action :authenticate
-
     # GET /api/bookings
     def index
+      authorize Booking
       bookings = policy_scope(Booking)
 
       render json: bookings
@@ -11,8 +10,9 @@ module Api
 
     # POST   /api/bookings
     def create
+      authorize Booking
       booking = Booking.new(booking_params)
-      booking.user ||= pundit_user
+      booking.user ||= current_user
 
       if booking.save
         render json: booking, status: :created

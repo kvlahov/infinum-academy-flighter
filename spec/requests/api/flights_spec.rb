@@ -27,18 +27,23 @@ RSpec.describe 'Flights API', type: :request do
     context 'with valid parameters as admin' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
-      it 'creates flight' do # rubocop: disable ExampleLength
+      let(:company) { FactoryBot.create(:company) }
+      let(:valid_parameters) do
+        {
+          name: 'Zagreb-Split',
+          flys_at: 5.hours.from_now,
+          lands_at: 6.hours.from_now,
+          base_price: 120,
+          no_of_seats: 50,
+          company_id: company.id
+        }
+      end
+
+      it 'creates flight' do
         expect do
           post '/api/flights',
                params:
-               {
-                 flight:
-                 {
-                   name: 'Zagreb-Split', flys_at: 5.hours.from_now,
-                   lands_at: 6.hours.from_now, base_price: 120,
-                   no_of_seats: 50, company_id: FactoryBot.create(:company).id
-                 }
-               }.to_json,
+               { flight: valid_parameters }.to_json,
                headers: auth_headers('abc123')
         end.to change { Flight.all.count }.by(1)
 
@@ -50,9 +55,11 @@ RSpec.describe 'Flights API', type: :request do
     context 'with invalid parameters as admin' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
+      let(:invalid_parameters) { { name: '' } }
+
       it 'returns 400 bad request' do
         post '/api/flights',
-             params: { flight: { name: '' } }.to_json,
+             params: { flight: invalid_parameters }.to_json,
              headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
@@ -74,7 +81,7 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     context 'when unauthorized request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         post '/api/flights',
@@ -135,7 +142,7 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     context 'when unauthorized request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let(:flight) { FactoryBot.create(:flight) }
 
@@ -181,7 +188,7 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     context 'when unauthorized request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let!(:flight) { FactoryBot.create(:flight) }
 

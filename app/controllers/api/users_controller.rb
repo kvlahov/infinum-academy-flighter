@@ -1,18 +1,18 @@
 module Api
   class UsersController < ApplicationController
-    before_action :authenticate, except: :create
+    skip_before_action :authenticate, only: :create
 
     # GET /api/users
     def index
-      # users = policy_scope(User)
+      authorize User
       users = User.all
-      authorize users
 
       render json: users
     end
 
     # POST   /api/users
     def create
+      authorize User
       user = User.new(user_params)
       if user.save
         render json: user, status: :created

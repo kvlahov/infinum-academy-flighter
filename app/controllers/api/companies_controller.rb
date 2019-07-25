@@ -1,16 +1,17 @@
 module Api
   class CompaniesController < ApplicationController
-    before_action :authenticate, except: [:index, :show]
+    skip_before_action :authenticate, only: [:index, :show]
 
     # GET /api/companies
     def index
+      authorize Company
       render json: Company.all
     end
 
     # POST   /api/companies
     def create
+      authorize Company
       company = Company.new(company_params)
-      authorize company
 
       if company.save
         render json: company, status: :created
@@ -21,6 +22,7 @@ module Api
 
     # GET    /api/companies/:id
     def show
+      authorize Company
       company = Company.find(params[:id])
       render json: company
     end

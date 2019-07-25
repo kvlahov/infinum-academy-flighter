@@ -27,10 +27,12 @@ RSpec.describe 'Companies API', type: :request do
     context 'with valid parameters as admin' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
+      let(:valid_parameters) { { name: 'Emirates' } }
+
       it 'creates company' do
         expect do
           post '/api/companies',
-               params: { company: { name: 'Emirates' } }.to_json,
+               params: { company: valid_parameters }.to_json,
                headers: auth_headers('abc123')
         end.to change { Company.all.count }.by(1)
 
@@ -42,9 +44,11 @@ RSpec.describe 'Companies API', type: :request do
     context 'with invalid parameters as admin' do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
+      let(:invalid_parameters) { { name: '' } }
+
       it 'returns 400 bad request' do
         post '/api/companies',
-             params: { company: { name: '' } }.to_json,
+             params: { company: invalid_parameters }.to_json,
              headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
@@ -66,7 +70,7 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     context 'when unauthorized request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       it 'returns 401 unauthorized' do
         post '/api/companies',
@@ -84,11 +88,12 @@ RSpec.describe 'Companies API', type: :request do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
       let(:company) { FactoryBot.create(:company, name: 'CroatiaAirlines') }
+      let(:valid_parameters) { { name: 'Emirates' } }
 
       it 'updates company' do
         expect do
           put "/api/companies/#{company.id}",
-              params: { company: { name: 'Emirates' } }.to_json,
+              params: { company: valid_parameters }.to_json,
               headers: auth_headers('abc123')
         end.to change { Company.find(company.id).name }.to('Emirates')
 
@@ -101,10 +106,11 @@ RSpec.describe 'Companies API', type: :request do
       before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
 
       let(:company) { FactoryBot.create(:company) }
+      let(:invalid_parameters) { { name: '' } }
 
       it 'returns 400 bad request' do
         put "/api/companies/#{company.id}",
-            params: { company: { name: '' } }.to_json,
+            params: { company: invalid_parameters }.to_json,
             headers: auth_headers('abc123')
 
         expect(response).to have_http_status(:bad_request)
@@ -128,7 +134,7 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     context 'when unauthorized request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let(:company) { FactoryBot.create(:company, name: 'CroatiaAirlines') }
 
@@ -174,7 +180,7 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     context 'when unauthorized request' do
-      before { FactoryBot.create(:user) }
+      before { FactoryBot.create(:user, token: '') }
 
       let!(:company) { FactoryBot.create(:company) }
 

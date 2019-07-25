@@ -1,19 +1,26 @@
 class ApplicationController < ActionController::Base
   skip_before_action :verify_authenticity_token
   include Pundit
-  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+  after_action :verify_authorized
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
-  def pundit_user
+  before_action :authenticate
+
+  def current_user
     token = request.headers['Authorization']
     User.find_by(token: token)
+  end
+
+  def pundit_user
+    current_user
   end
 
   def authenticate
     auth_token = request.headers['Authorization']
     return unless User.find_by(token: auth_token).nil?
 
-    render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
+    user_not_authenticated
   end
 
   private
@@ -24,5 +31,9 @@ class ApplicationController < ActionController::Base
 
   def user_not_authorized
     render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
+  end
+
+  def user_not_authenticated
+    render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
   end
 end

@@ -13,6 +13,10 @@ class UserPolicy < ApplicationPolicy
     user.admin?
   end
 
+  def create?
+    true
+  end
+
   def show?
     user.admin? || record == user
   end

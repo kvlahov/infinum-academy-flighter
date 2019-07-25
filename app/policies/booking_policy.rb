@@ -4,9 +4,17 @@ class BookingPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       else
-        scope.where(user: user)
+        user.bookings
       end
     end
+  end
+
+  def index?
+    true
+  end
+
+  def create?
+    true
   end
 
   def show?

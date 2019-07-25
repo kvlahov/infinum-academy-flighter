@@ -104,25 +104,40 @@ RSpec.describe 'Booking API', type: :request do
   describe 'POST /bookings' do
     context 'when user with valid parameters' do
       let!(:user) { FactoryBot.create(:user, token: 'abc123') }
+      let(:attributes) do
+        { no_of_seats: 80, seat_price: 120, flight_id: FactoryBot.create(:flight).id }
+      end
 
-      it 'creates booking' do # rubocop: disable ExampleLength
+      it 'creates booking' do
         expect do
           post '/api/bookings',
-               params:
-                {
-                  booking:
-                  {
-                    no_of_seats: 80,
-                    seat_price: 120,
-                    flight_id: FactoryBot.create(:flight).id
-                  }
-                }.to_json,
+               params: { booking: attributes }.to_json,
                headers: auth_headers('abc123')
         end.to change { user.bookings.count }.by(1)
 
         expect(response).to have_http_status(:created)
         expect(json_body['booking']).to include('no_of_seats' => 80, 'seat_price' => 120)
         expect(json_body['booking']['user']).to include('id' => user.id)
+      end
+    end
+
+    context 'when admin with valid parameters' do
+      before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
+
+      let!(:other) { FactoryBot.create(:user) }
+      let(:attributes) do
+        { no_of_seats: 80,
+          seat_price: 120,
+          flight_id: FactoryBot.create(:flight).id,
+          user_id: other.id }
+      end
+
+      it 'creates booking for other user' do
+        expect do
+          post '/api/bookings',
+               params: { booking: attributes }.to_json,
+               headers: auth_headers('abc123')
+        end.to(change { other.bookings.count }.by(1))
       end
     end
 

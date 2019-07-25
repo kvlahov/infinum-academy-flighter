@@ -12,7 +12,7 @@ module Api
     # POST   /api/bookings
     def create
       booking = Booking.new(booking_params)
-      booking.user = pundit_user
+      booking.user ||= pundit_user
 
       if booking.save
         render json: booking, status: :created

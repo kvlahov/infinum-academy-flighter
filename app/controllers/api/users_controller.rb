@@ -4,7 +4,9 @@ module Api
 
     # GET /api/users
     def index
-      users = policy_scope(User)
+      # users = policy_scope(User)
+      users = User.all
+      authorize users
 
       render json: users
     end

@@ -23,6 +23,6 @@ class ApplicationController < ActionController::Base
   end
 
   def user_not_authorized
-    render json: { errors: { resource: 'forbidden' } }, status: :forbidden
+    render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
   end
 end

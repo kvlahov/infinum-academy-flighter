@@ -19,13 +19,12 @@ RSpec.describe 'Users API', type: :request do
     context 'when user is not admin' do
       before { FactoryBot.create(:user, first_name: 'User', token: 'abc123') }
 
-      it 'returns logged in user' do
+      it 'returns 403 forbidden' do
         get '/api/users',
             headers: auth_headers('abc123')
 
-        expect(response).to have_http_status(:ok)
-        expect(json_body['users'].count).to eq(1)
-        expect(json_body['users'].first).to include('first_name' => 'User')
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
       end
     end
 

@@ -8,8 +8,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate
 
   def current_user
-    token = request.headers['Authorization']
-    User.find_by(token: token)
+    User.find_by(token: request.headers['Authorization'])
   end
 
   def pundit_user

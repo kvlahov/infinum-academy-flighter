@@ -15,12 +15,33 @@ class Booking < ApplicationRecord
   validates :no_of_seats, :seat_price, presence: true,
                                        numericality: { greater_than: 0 }
   validate :flight_not_in_past?
+  validate :enough_seats?
   belongs_to :user
   belongs_to :flight
+
+  scope :no_booked_seats, -> { joins(:flight).sum(:no_of_seats) }
 
   def flight_not_in_past?
     return if flight&.flys_at&.future?
 
     errors.add(:flight, 'flights can\'t be in the past')
+  end
+
+  def enough_seats?
+    return if no_booked_seats + no_of_seats <= flight.no_of_seats
+
+    errors.add(:no_of_seats, 'not enough seats available')
+  end
+
+  def self.filter_flights(filter)
+    if filter == 'active'
+      joins(:flight).where(flight: Flight.active).group(:id)
+    else
+      all
+    end
+  end
+
+  def self.sorted
+    joins(:flight).order('flights.flys_at').order('flights.name').order(:created_at)
   end
 end

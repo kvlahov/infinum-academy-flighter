@@ -5,7 +5,9 @@ module Api
     # GET /api/flights
     def index
       authorize Flight
-      render json: Flight.all
+      render json: Flight.includes(:company)
+                         .active
+                         .sorted
     end
 
     # POST   /api/flights

@@ -13,4 +13,12 @@ class Company < ApplicationRecord
                    uniqueness: { case_sensitive: false }
 
   has_many :flights, dependent: :destroy
+
+  def self.filter_flights(filter)
+    if filter == 'active'
+      joins(:flights).where(flights: Flight.active).group(:id)
+    else
+      all
+    end
+  end
 end

@@ -2,15 +2,20 @@
 #
 # Table name: users
 #
-#  id         :bigint           not null, primary key
-#  first_name :string
-#  last_name  :string
-#  email      :string           not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id              :bigint           not null, primary key
+#  first_name      :string
+#  last_name       :string
+#  email           :string           not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  password_digest :string
+#  token           :string           default("")
+#  role            :string
 #
 
 class User < ApplicationRecord
+  has_secure_password
+  has_secure_token
   validates :email, presence: true,
                     uniqueness: { case_sensitive: false },
                     format: /\A[^@\s]+@([^@\s]+\.)+[^@\s]+\z/
@@ -19,4 +24,12 @@ class User < ApplicationRecord
 
   has_many :bookings, dependent: :destroy
   has_many :flights, through: :bookings
+
+  def admin?
+    role == 'admin'
+  end
+
+  def public?
+    role.nil?
+  end
 end

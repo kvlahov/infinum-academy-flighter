@@ -6,5 +6,8 @@ Rails.application.routes.draw do
     resources :users, only: [:index, :create, :show, :update, :destroy]
     resources :flights, only: [:index, :create, :show, :update, :destroy]
     resources :companies, only: [:index, :create, :show, :update, :destroy]
+
+    post '/session', to: 'session#create'
+    delete '/session', to: 'session#destroy'
   end
 end

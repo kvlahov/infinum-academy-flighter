@@ -2,12 +2,18 @@ module Api
   class BookingsController < ApplicationController
     # GET /api/bookings
     def index
-      render json: Booking.all
+      authorize Booking
+      bookings = policy_scope(Booking)
+
+      render json: bookings
     end
 
     # POST   /api/bookings
     def create
+      authorize Booking
       booking = Booking.new(booking_params)
+      booking.user ||= current_user
+
       if booking.save
         render json: booking, status: :created
       else
@@ -18,12 +24,16 @@ module Api
     # GET    /api/bookings/:id
     def show
       booking = Booking.find(params[:id])
+      authorize booking
+
       render json: booking
     end
 
     # PUT    /api/bookings/:id
     def update
       booking = Booking.find(params[:id])
+      authorize booking
+
       if booking.update(booking_params)
         render json: booking
       else
@@ -33,18 +43,17 @@ module Api
 
     # DELETE /api/bookings/:id
     def destroy
-      Booking.find(params[:id]).destroy
+      booking = Booking.find(params[:id])
+      authorize booking
+
+      booking.destroy
       head :no_content
     end
 
     private
 
     def booking_params
-      params.require(:booking).permit(
-        :no_of_seats, :seat_price,
-        :user_id,
-        :flight_id
-      )
+      params.require(:booking).permit(policy(Booking).permitted_attributes)
     end
   end
 end

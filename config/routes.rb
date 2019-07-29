@@ -9,5 +9,10 @@ Rails.application.routes.draw do
 
     post '/session', to: 'session#create'
     delete '/session', to: 'session#destroy'
+
+    namespace :statistics do
+      resources :flights, only: :index
+      resources :companies, only: :index
+    end
   end
 end

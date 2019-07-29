@@ -15,6 +15,7 @@ module Api
       authorize Booking
       booking = Booking.new(booking_params)
       booking.user ||= current_user
+      booking.seat_price = booking.flight.current_price(Time.current)
 
       if booking.save
         render json: booking, status: :created

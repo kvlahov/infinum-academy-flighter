@@ -44,4 +44,8 @@ class Booking < ApplicationRecord
   def self.sorted
     joins(:flight).order('flights.flys_at').order('flights.name').order(:created_at)
   end
+
+  def total_price
+    no_of_seats * seat_price.round
+  end
 end

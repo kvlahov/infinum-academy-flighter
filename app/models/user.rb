@@ -29,7 +29,16 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
-  def public?
-    role.nil?
+  def self.sorted
+    order(:email)
+  end
+
+  def self.filter(value)
+    if value
+      where('first_name ILIKE :value or last_name ILIKE :value or email ILIKE :value',
+            value: "%#{value}%")
+    else
+      all
+    end
   end
 end

@@ -8,6 +8,7 @@ module Api
       render json: Flight.includes(:company)
                          .active
                          .sorted
+                         .filter(request.query_parameters)
     end
 
     # POST   /api/flights

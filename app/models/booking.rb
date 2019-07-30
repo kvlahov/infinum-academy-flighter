@@ -19,8 +19,6 @@ class Booking < ApplicationRecord
   belongs_to :user
   belongs_to :flight
 
-  scope :no_booked_seats, -> { joins(:flight).sum(:no_of_seats) }
-
   def flight_not_in_past?
     return if flight&.flys_at&.future?
 
@@ -31,6 +29,10 @@ class Booking < ApplicationRecord
     return if no_booked_seats + no_of_seats <= flight.no_of_seats
 
     errors.add(:no_of_seats, 'not enough seats available')
+  end
+
+  def no_booked_seats
+    Booking.joins(:flight).where(flight_id: flight.id).sum(:no_of_seats)
   end
 
   def self.filter_flights(filter)

@@ -14,7 +14,7 @@ module Api
 
     def no_of_booked_seats
       Booking.where(flight_id: object.id)
-             .no_booked_seats
+             .sum(:no_of_seats)
     end
 
     def company_name

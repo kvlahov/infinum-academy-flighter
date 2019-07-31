@@ -50,7 +50,7 @@ class Flight < ApplicationRecord
     if (date_booked - flys_at) >= 15.days
       base_price
     else
-      ((15 - (date_booked - flys_at)) / 15 + 1).round * base_price
+      calculate_price(date_booked, 15).round
     end
   end
 
@@ -89,5 +89,12 @@ class Flight < ApplicationRecord
 
   def self.available_filters
     ['name_cont', 'flys_at_eq', 'no_of_available_seats_gteq']
+  end
+
+  private
+
+  def calculate_price(date_booked, days_before)
+    diff_in_days = (flys_at.to_date - date_booked.to_date).to_i
+    ((days_before - diff_in_days) / days_before.to_f + 1) * base_price
   end
 end

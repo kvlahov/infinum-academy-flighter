@@ -38,7 +38,8 @@ RSpec.describe Flight do
       flight.valid?
 
       expect(flight.valid?).to eq(false)
-      expect(flight.errors).to include('overlapping with another')
+      expect(flight.errors['flys_at'])
+        .to include('flight schedule is overlapping with another flight')
     end
   end
 

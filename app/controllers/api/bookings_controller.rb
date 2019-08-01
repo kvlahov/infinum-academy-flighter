@@ -3,7 +3,7 @@ module Api
     # GET /api/bookings
     def index
       authorize Booking
-      bookings = policy_scope(Booking).includes(:user, flight: [:company])
+      bookings = policy_scope(Booking).includes(flight: [:company])
                                       .sorted(params['sort'])
                                       .filter_flights(params[:filter])
       render json: bookings
@@ -14,7 +14,7 @@ module Api
       authorize Booking
       booking = Booking.new(booking_params)
       booking.user ||= current_user
-      booking.seat_price = booking.flight.current_price(Time.current)
+      booking.seat_price = booking&.flight&.current_price(Time.current)
 
       if booking.save
         render json: booking, status: :created

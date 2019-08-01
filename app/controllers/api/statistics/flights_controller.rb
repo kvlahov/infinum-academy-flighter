@@ -3,7 +3,7 @@ module Api
     class FlightsController < ApplicationController
       # GET api/statistics/flights
       def index
-        authorize Flight, policy_class: FlightPolicy
+        authorize Flight, policy_class: Api::Statistics::FlightPolicy
         render json: Flight.all
       end
     end

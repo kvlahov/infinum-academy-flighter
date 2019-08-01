@@ -2,7 +2,7 @@ class BookingPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
       if user.admin?
-        scope.all
+        scope.all.includes(:user)
       else
         user.bookings
       end

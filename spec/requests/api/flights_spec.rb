@@ -78,10 +78,10 @@ RSpec.describe 'Flights API', type: :request do
       end
     end
 
-    context 'when sorting by name, same flys_at' do
-      before { FactoryBot.create(:flight, flys_at: 1.day.from_now, name: 'a') }
+    context 'when sorting by name' do
+      before { FactoryBot.create(:flight, name: 'a') }
 
-      let!(:flight) { FactoryBot.create(:flight, flys_at: 1.day.from_now, name: 'z') }
+      let!(:flight) { FactoryBot.create(:flight, name: 'z') }
 
       it 'checks sorting' do
         get '/api/flights',
@@ -91,8 +91,8 @@ RSpec.describe 'Flights API', type: :request do
       end
     end
 
-    context 'when sorting by created_at, same flys_at and name' do
-      before { FactoryBot.create_list(:flight, 2, flys_at: 1.day.from_now, name: 'a') }
+    context 'when sorting by created_at' do
+      before { FactoryBot.create_list(:flight, 2) }
 
       it 'checks sorting' do
         get '/api/flights',
@@ -100,6 +100,18 @@ RSpec.describe 'Flights API', type: :request do
 
         expect(json_body['flights'].first['created_at'])
           .to be < json_body['flights'].last['created_at']
+      end
+    end
+
+    describe 'Flight Serializer' do
+      let(:flight) { FactoryBot.create(:flight) }
+
+      before { FactoryBot.create(:booking, no_of_seats: 20, flight: flight) }
+
+      it 'checks no_of_booked_seats' do
+        get '/api/flights'
+
+        expect(json_body['flights'].first['no_of_booked_seats']).to eq(20)
       end
     end
   end

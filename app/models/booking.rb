@@ -26,13 +26,9 @@ class Booking < ApplicationRecord
   end
 
   def enough_seats?
-    return if no_booked_seats + no_of_seats <= flight.no_of_seats
+    return if flight && no_of_seats && no_booked_seats + no_of_seats.to_i <= flight&.no_of_seats
 
     errors.add(:no_of_seats, 'not enough seats available')
-  end
-
-  def no_booked_seats
-    Booking.joins(:flight).where(flight_id: flight.id).sum(:no_of_seats)
   end
 
   def self.filter_flights(filter)
@@ -45,5 +41,11 @@ class Booking < ApplicationRecord
 
   def total_price
     no_of_seats * seat_price.round
+  end
+
+  private
+
+  def no_booked_seats
+    Booking.joins(:flight).where(flight_id: flight.id).sum(:no_of_seats)
   end
 end

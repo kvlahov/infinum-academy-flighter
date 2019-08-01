@@ -4,7 +4,7 @@ module Api
     def index
       authorize Booking
       bookings = policy_scope(Booking).includes(:user, flight: [:company])
-                                      .sorted
+                                      .sorted(params['sort'])
                                       .filter_flights(params[:filter])
       render json: bookings
     end

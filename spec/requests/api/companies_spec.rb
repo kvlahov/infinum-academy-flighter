@@ -3,21 +3,18 @@ RSpec.describe 'Companies API', type: :request do
 
   describe 'GET /companies' do
     context 'when filter is not present' do
-      before { ['c', 'b', 'a'].each { |char| FactoryBot.create(:company, name: char) } }
-
-      # before { FactoryBot.create_list(:company, 3) }
+      before { FactoryBot.create_list(:company, 3) }
 
       it 'returns list of companies' do
         get '/api/companies'
 
-        expect(response).to have_http_status(:ok)
         expect(json_body['companies'].count).to eq(3)
       end
 
-      it 'sorts by name ASC' do
+      it 'checks status is OK' do
         get '/api/companies'
 
-        expect(json_body['companies'].first).to include('name' => 'a')
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -34,6 +31,17 @@ RSpec.describe 'Companies API', type: :request do
             params: { filter: 'active' }
 
         expect(json_body['companies'].count).to eq(1)
+      end
+    end
+
+    context 'when sorting' do
+      before { ['c', 'b', 'a'].each { |char| FactoryBot.create(:company, name: char) } }
+
+      it 'sorts by name ASC' do
+        get '/api/companies',
+            params: { sort: 'name' }
+
+        expect(json_body['companies'].first).to include('name' => 'a')
       end
     end
 

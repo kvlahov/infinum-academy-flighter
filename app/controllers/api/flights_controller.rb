@@ -7,7 +7,7 @@ module Api
       authorize Flight
       render json: Flight.includes(:company)
                          .active
-                         .sorted
+                         .sorted(params['sort'])
                          .filter(request.query_parameters)
     end
 

@@ -6,7 +6,7 @@ module Api
     attribute :no_of_active_flights
 
     def no_of_active_flights
-      Company.joins(:flights)
+      Company.left_joins(:flights)
              .find(object.id)
              .flights
              .active

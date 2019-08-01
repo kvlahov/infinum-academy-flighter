@@ -29,10 +29,6 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
-  def self.sorted
-    order(:email)
-  end
-
   def self.filter(value)
     if value
       where('first_name ILIKE :value or last_name ILIKE :value or email ILIKE :value',

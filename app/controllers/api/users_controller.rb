@@ -7,7 +7,8 @@ module Api
       authorize User
       users = User.all
 
-      render json: users.sorted.filter(params[:query])
+      render json: users.sorted(params['sort'])
+                        .filter(params[:query])
     end
 
     # POST   /api/users

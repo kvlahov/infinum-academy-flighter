@@ -29,7 +29,6 @@ class Flight < ApplicationRecord
 
   scope :active, -> { where('flights.flys_at > ?', Time.current) }
   scope :name_cont, ->(name) { where('name ILIKE ?', "%#{name}%") }
-  scope :flys_at_eq, ->(datetime) { where("date_trunc('minute',flys_at) = ?", datetime) }
 
   def flys_at_before_lands_at?
     return if flys_at && lands_at && flys_at < lands_at
@@ -38,12 +37,15 @@ class Flight < ApplicationRecord
   end
 
   def overlapping?
-    return if flys_at && lands_at && company &&
-              company.flights.map do |flight|
-                (flight.flys_at..flight.lands_at).overlaps?(flys_at..lands_at)
-              end.none?
+    return if company &&
+              company.flights
+                     .reject { |flight| flight.id = id }
+                     .map do |flight|
+                       (flight.flys_at..flight.lands_at).overlaps?(flys_at..lands_at)
+                     end
+                     .none?
 
-    errors.add(:flys_at, 'flight schedule is overlapping with another one')
+    errors.add(:flys_at, 'flight schedule is overlapping with another flight')
   end
 
   def current_price(date_booked)
@@ -54,8 +56,12 @@ class Flight < ApplicationRecord
     end
   end
 
-  def self.sorted
-    order(:flys_at).order(:name).order(:created_at)
+  def self.flys_at_eq(datetime)
+    if datetime
+      where("date_trunc('minute',flys_at) = ?", datetime.to_datetime.change(sec: 0))
+    else
+      all
+    end
   end
 
   def self.no_of_available_seats_gteq(value)
@@ -90,6 +96,8 @@ class Flight < ApplicationRecord
   def self.available_filters
     ['name_cont', 'flys_at_eq', 'no_of_available_seats_gteq']
   end
+
+  private_class_method :available_filters
 
   private
 

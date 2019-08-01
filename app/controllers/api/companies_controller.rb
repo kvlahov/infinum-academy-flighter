@@ -5,7 +5,7 @@ module Api
     # GET /api/companies
     def index
       authorize Company
-      render json: Company.filter_flights(params[:filter]).sorted(params['sort'])
+      render json: Company.filter_flights(params[:filter]).sorted(params['sort']).order(:name)
     end
 
     # POST   /api/companies

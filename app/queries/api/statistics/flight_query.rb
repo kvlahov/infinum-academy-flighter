@@ -19,7 +19,11 @@ module Api
 
       def occupancy
         ratio = (no_of_booked_seats.to_f / relation.first.no_of_seats).round(2)
-        format('%.2f%%', ratio * 100)
+        if ratio.positive?
+          format('%.2f%%', ratio * 100)
+        else
+          format('%.1f%%', ratio * 100)
+        end
       end
     end
   end

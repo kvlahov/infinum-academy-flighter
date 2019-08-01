@@ -9,6 +9,7 @@ module Api
 
       render json: users.sorted(params['sort'])
                         .filter(params[:query])
+                        .order(:email)
     end
 
     # POST   /api/users

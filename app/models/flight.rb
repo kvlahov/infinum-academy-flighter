@@ -37,7 +37,7 @@ class Flight < ApplicationRecord
   end
 
   def overlapping?
-    return if company &&
+    return if company&.valid? &&
               flights_for_company
               .reject { |flight| flight.id == id }
               .map do |flight|
@@ -104,11 +104,12 @@ class Flight < ApplicationRecord
 
   def calculate_price(date_booked, days_before)
     diff_in_days = (flys_at.to_date - date_booked.to_date).to_i
+    diff_in_days = 0 if diff_in_days.negative?
     ((days_before - diff_in_days) / days_before.to_f + 1) * base_price
   end
 
   def flights_for_company
-    Company.find(company_id).flights if company_id
+    Company.find(company_id).flights
   end
 
   def add_overlap_errors

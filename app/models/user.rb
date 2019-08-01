@@ -37,4 +37,8 @@ class User < ApplicationRecord
       all
     end
   end
+
+  def self.default_ordering
+    'email'
+  end
 end

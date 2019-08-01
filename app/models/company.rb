@@ -21,4 +21,8 @@ class Company < ApplicationRecord
       all
     end
   end
+
+  def self.default_ordering
+    'name'
+  end
 end

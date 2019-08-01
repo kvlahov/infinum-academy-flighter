@@ -1,8 +1,8 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
-  def self.sorted(order_attribute = 'id')
-    order_attribute = 'id' if order_attribute.nil?
+  def self.sorted(order_attribute = default_ordering)
+    order_attribute = default_ordering if order_attribute.nil?
 
     if order_attribute.in? column_names
       order(order_attribute)
@@ -23,5 +23,8 @@ class ApplicationRecord < ActiveRecord::Base
     joins(association.first).order(order_attribute)
   end
 
+  def self.default_ordering
+    'id'
+  end
   private_class_method :order_by_association
 end

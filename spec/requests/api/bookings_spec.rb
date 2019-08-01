@@ -179,7 +179,7 @@ RSpec.describe 'Booking API', type: :request do
   describe 'POST /bookings' do
     context 'when user with valid parameters' do
       let!(:user) { FactoryBot.create(:user, token: 'abc123') }
-      let(:flight) { FactoryBot.create(:flight, flys_at: Time.current + 1.hour, base_price: 50) }
+      let(:flight) { FactoryBot.create(:flight, flys_at: Time.current + 2.minutes, base_price: 50) }
       let(:valid_parameters) do
         { no_of_seats: 80, flight_id: flight.id }
       end

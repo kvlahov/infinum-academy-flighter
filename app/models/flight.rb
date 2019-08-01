@@ -45,10 +45,11 @@ class Flight < ApplicationRecord
               end
               .none?
 
-    errors.add(:flys_at, 'flight schedule is overlapping with another flight')
+    errors.add(:lands_at, 'flight schedule is overlapping with another flight')
   end
 
-  def current_price(date_booked)
+  def current_price
+    date_booked = Time.current
     if (date_booked - flys_at) >= 15.days
       base_price
     else
@@ -107,6 +108,6 @@ class Flight < ApplicationRecord
   end
 
   def flights_for_company
-    Company.find(company_id).flights
+    Company.find(company_id).flights if company_id
   end
 end

@@ -9,8 +9,9 @@ module Api
     attributes :created_at, :updated_at
     attribute :no_of_booked_seats
     attribute :company_name
+    attribute :current_price
 
-    belongs_to :company
+    # belongs_to :company
 
     def no_of_booked_seats
       Booking.where(flight_id: object.id)

@@ -38,17 +38,19 @@ RSpec.describe Flight do
       flight.valid?
 
       expect(flight.valid?).to eq(false)
-      expect(flight.errors['flys_at'])
+      expect(flight.errors['lands_at'])
         .to include('flight schedule is overlapping with another flight')
     end
   end
 
   context 'when calculating flight price' do
     let(:base_price) { 100 }
-    let!(:flight) { FactoryBot.create(:flight, flys_at: 2.days.from_now, base_price: base_price) }
+    let!(:flight) do
+      FactoryBot.create(:flight, flys_at: Time.current + 10.minutes, base_price: base_price)
+    end
 
     it 'doubles the price on flight day' do
-      expect(flight.current_price(2.days.from_now)).to eq(base_price * 2)
+      expect(flight.current_price).to eq(base_price * 2)
     end
   end
 end

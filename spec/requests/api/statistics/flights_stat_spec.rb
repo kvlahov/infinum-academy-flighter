@@ -37,7 +37,7 @@ RSpec.describe 'Flights Statistics', type: :request do
         get '/api/statistics/flights',
             headers: auth_headers('abc123')
 
-        expect(json_body['flights'].first['occupancy']).to eq(0.1)
+        expect(json_body['flights'].first['occupancy']).to eq('10.0%')
       end
     end
 

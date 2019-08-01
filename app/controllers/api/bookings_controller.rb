@@ -37,6 +37,8 @@ module Api
       authorize booking
 
       if booking.update(booking_params)
+        booking.seat_price = booking&.flight&.current_price
+
         render json: booking
       else
         render json: { errors: booking.errors }, status: :bad_request

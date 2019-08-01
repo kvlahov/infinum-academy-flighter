@@ -11,7 +11,9 @@ module Api
     attribute :company_name
     attribute :current_price
 
-    # belongs_to :company
+    belongs_to :company
+
+    delegate :current_price, to: :object
 
     def no_of_booked_seats
       Booking.where(flight_id: object.id)

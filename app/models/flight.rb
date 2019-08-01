@@ -45,7 +45,7 @@ class Flight < ApplicationRecord
               end
               .none?
 
-    errors.add(:lands_at, 'flight schedule is overlapping with another flight')
+    add_overlap_errors
   end
 
   def current_price
@@ -109,5 +109,11 @@ class Flight < ApplicationRecord
 
   def flights_for_company
     Company.find(company_id).flights if company_id
+  end
+
+  def add_overlap_errors
+    msg = 'flight schedule is overlapping with another flight'
+    errors.add(:flys_at, msg)
+    errors.add(:lands_at, msg)
   end
 end

@@ -5,11 +5,7 @@ module Api
     # GET /api/flights
     def index
       authorize Flight
-      render json:
-        Flight.includes(:company)
-              .active
-              .sorted(params['sort'])
-              .filter(request.query_parameters)
+      render json: flight_active_filtered_sorted
     end
 
     # POST   /api/flights
@@ -59,6 +55,13 @@ module Api
       params
         .require(:flight)
         .permit(:name, :no_of_seats, :base_price, :flys_at, :lands_at, :company_id)
+    end
+
+    def flight_active_filtered_sorted
+      Flight.includes(:company)
+            .active
+            .sorted(params['sort'])
+            .filter(request.query_parameters)
     end
   end
 end

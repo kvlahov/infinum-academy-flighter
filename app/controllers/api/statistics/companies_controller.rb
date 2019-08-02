@@ -4,7 +4,8 @@ module Api
       # GET api/statistics/flights
       def index
         authorize Company, policy_class: Api::Statistics::CompanyPolicy
-        render json: Company.all
+        render json: CompanyQuery.new.with_stats,
+               each_serializer: Api::Statistics::CompanySerializer
       end
     end
   end

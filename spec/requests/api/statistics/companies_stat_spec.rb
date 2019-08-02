@@ -41,10 +41,11 @@ RSpec.describe 'Companies Statistics', type: :request do
       end
 
       it 'checks average_price_of_seats' do
+        # seat_price: 200
         get '/api/statistics/companies',
             headers: auth_headers('abc123')
 
-        expect(json_body['companies'].first['average_price_of_seats']).to eq(100)
+        expect(json_body['companies'].first['average_price_of_seats']).to eq(200)
       end
     end
 

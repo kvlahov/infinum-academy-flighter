@@ -7,23 +7,13 @@ module Api
         @relation = relation
       end
 
-      def revenue
+      def with_stats
         relation.joins(:bookings)
-                .sum('bookings.seat_price * bookings.no_of_seats')
-      end
-
-      def no_of_booked_seats
-        relation.joins(:bookings)
-                .sum('bookings.no_of_seats')
-      end
-
-      def occupancy
-        ratio = (no_of_booked_seats.to_f / relation.first.no_of_seats).round(2)
-        if ratio.positive?
-          format('%.2f%%', ratio * 100)
-        else
-          format('%.1f%%', ratio * 100)
-        end
+                .select('sum(bookings.seat_price * bookings.no_of_seats) as revenue')
+                .select('sum(bookings.no_of_seats) as no_of_booked_seats')
+                .select('flights.no_of_seats')
+                .select('flights.*')
+                .group('flights.id')
       end
     end
   end

@@ -33,7 +33,7 @@ class Booking < ApplicationRecord
 
   def self.filter_flights(filter)
     if filter == 'active'
-      joins(:flight).where(flight: Flight.active).group(:id)
+      joins(:flight).merge(Flight.active).group(:id)
     else
       all
     end
@@ -46,6 +46,6 @@ class Booking < ApplicationRecord
   private
 
   def no_booked_seats
-    Booking.joins(:flight).where(flight_id: flight.id).sum(:no_of_seats)
+    Booking.joins(:flight).where(flight_id: flight.id).where.not(id: id).sum(:no_of_seats)
   end
 end

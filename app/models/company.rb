@@ -16,7 +16,7 @@ class Company < ApplicationRecord
 
   def self.filter_flights(filter)
     if filter == 'active'
-      joins(:flights).where(flights: Flight.active).group(:id)
+      joins(:flights).merge(Flight.active).group(:id)
     else
       all
     end

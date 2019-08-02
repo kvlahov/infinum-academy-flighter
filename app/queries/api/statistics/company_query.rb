@@ -7,16 +7,14 @@ module Api
         @relation = relation
       end
 
-      def total_revenue
-        relation.joins(flights: [:bookings]).sum('bookings.seat_price * bookings.no_of_seats')
-      end
-
-      def total_no_of_booked_seats
-        relation.joins(flights: [:bookings]).sum('bookings.no_of_seats')
-      end
-
-      def average_price_of_seats
-        relation.joins(:flights).average('flights.base_price').to_f.round(2)
+      def with_stats
+        relation.left_joins(flights: [:bookings])
+                .select('companies.*')
+                .select('coalesce(sum(bookings.seat_price * bookings.no_of_seats), 0)
+                         as total_revenue')
+                .select('coalesce(sum(bookings.no_of_seats), 0) as total_no_of_booked_seats')
+                .select('coalesce(round(avg(bookings.seat_price), 1), 0) as average_price_of_seats')
+                .group('companies.id')
       end
     end
   end

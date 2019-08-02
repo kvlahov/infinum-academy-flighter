@@ -37,7 +37,7 @@ module Api
       authorize booking
 
       if booking.update(booking_params)
-        booking.seat_price = booking&.flight&.current_price
+        booking.update(seat_price: booking.flight.current_price)
 
         render json: booking
       else

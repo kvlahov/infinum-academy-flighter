@@ -7,7 +7,11 @@ module Api
       attribute :total_revenue
       attribute :total_no_of_booked_seats
       attribute :average_price_of_seats do
-        object.average_price_of_seats.to_f
+        if object.total_no_of_booked_seats != 0
+          (object.total_revenue / object.total_no_of_booked_seats.to_f).round(1)
+        else
+          0
+        end
       end
     end
   end

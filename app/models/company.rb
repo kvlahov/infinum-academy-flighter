@@ -25,4 +25,12 @@ class Company < ApplicationRecord
   def self.default_ordering
     'name'
   end
+
+  def self.with_active_flights
+    Company.left_joins(:flights)
+           .select('companies.*')
+           .select("count(flights.id) filter(where(flights.flys_at > '#{Time.current}'))
+                   as no_of_active_flights")
+           .group(:id)
+  end
 end

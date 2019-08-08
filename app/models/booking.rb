@@ -46,6 +46,6 @@ class Booking < ApplicationRecord
   private
 
   def no_booked_seats
-    Booking.joins(:flight).where(flight_id: flight.id).where.not(id: id).sum(:no_of_seats)
+    flight.bookings.where.not(id: id).sum(:no_of_seats)
   end
 end

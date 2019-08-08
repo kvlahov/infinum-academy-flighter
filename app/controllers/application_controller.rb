@@ -16,9 +16,7 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate
-    #    auth_token = request.headers['Authorization']
-    #    return unless User.find_by(token: auth_token).nil?
-    return unless current_user.nil?
+    return if current_user
 
     user_not_authenticated
   end

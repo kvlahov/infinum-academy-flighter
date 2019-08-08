@@ -36,18 +36,6 @@ class Flight < ApplicationRecord
     errors.add(:flys_at, 'must be before landing time')
   end
 
-  # def overlapping?
-  #   return if company&.valid? &&
-  #             flights_for_company
-  #             .reject { |flight| flight.id == id }
-  #             .map do |flight|
-  #               (flight.flys_at..flight.lands_at).overlaps?(flys_at..lands_at)
-  #             end
-  #             .none?
-  #
-  #   add_overlap_errors
-  # end
-
   def overlapping?
     return if company&.valid? &&
               company
@@ -117,10 +105,6 @@ class Flight < ApplicationRecord
     diff_in_days = (flys_at.to_date - date_booked.to_date).to_i
     diff_in_days = 0 if diff_in_days.negative?
     ((days_before - diff_in_days) / days_before.to_f + 1) * base_price
-  end
-
-  def flights_for_company
-    company.flights
   end
 
   def add_overlap_errors

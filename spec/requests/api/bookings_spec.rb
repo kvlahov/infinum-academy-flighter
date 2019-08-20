@@ -2,17 +2,92 @@ RSpec.describe 'Booking API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /bookings' do
-    before { FactoryBot.create_list(:booking, 3) }
-
     context 'when user is admin' do
-      before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
+      before do
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+        FactoryBot.create_list(:booking, 3)
+      end
 
       it 'returns list of all bookings' do
         get '/api/bookings',
             headers: auth_headers('abc123')
 
-        expect(response).to have_http_status(:ok)
         expect(json_body['bookings'].count).to eq(3)
+      end
+
+      it 'returns status ok' do
+        get '/api/bookings',
+            headers: auth_headers('abc123')
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when sorting by flight.flys_at' do
+      let(:earlier_flight) { FactoryBot.create(:flight, flys_at: 2.days.from_now) }
+      let(:later_flight) { FactoryBot.create(:flight, flys_at: 3.days.from_now) }
+
+      before do
+        FactoryBot.create(:booking, flight: earlier_flight)
+        FactoryBot.create(:booking, flight: later_flight)
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+      end
+
+      it 'sorts by flys_at' do
+        get '/api/bookings',
+            params: { sort: 'flights.flys_at' },
+            headers: auth_headers('abc123')
+
+        expect(json_body['bookings'].last['flight']['id']).to eq(later_flight.id)
+      end
+    end
+
+    context 'when sorting by flight.name' do
+      let(:earlier_flight) { FactoryBot.create(:flight, name: 'a') }
+      let(:later_flight) { FactoryBot.create(:flight, name: 'b') }
+
+      before do
+        FactoryBot.create(:booking, flight: earlier_flight)
+        FactoryBot.create(:booking, flight: later_flight)
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+      end
+
+      it 'sorts by name' do
+        get '/api/bookings',
+            params: { sort: 'flights.name' },
+            headers: auth_headers('abc123')
+
+        expect(json_body['bookings'].last['flight']['name']).to eq(later_flight.name)
+      end
+    end
+
+    context 'when sorting by created_at' do
+      before do
+        FactoryBot.create_list(:booking, 2)
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+      end
+
+      it 'sorts by created_at' do
+        get '/api/bookings',
+            params: { sort: 'created_at' },
+            headers: auth_headers('abc123')
+
+        expect(json_body['bookings'].first['created_at'])
+          .to be < json_body['bookings'].last['created_at']
+      end
+    end
+
+    describe 'Booking Serializer total_price' do
+      before do
+        FactoryBot.create(:booking, seat_price: 100, no_of_seats: 10)
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+      end
+
+      it 'checks total_price calculation' do
+        get '/api/bookings',
+            headers: auth_headers('abc123')
+
+        expect(json_body['bookings'].first['total_price']).to eq(1000)
       end
     end
 
@@ -104,9 +179,9 @@ RSpec.describe 'Booking API', type: :request do
   describe 'POST /bookings' do
     context 'when user with valid parameters' do
       let!(:user) { FactoryBot.create(:user, token: 'abc123') }
-      let(:flight) { FactoryBot.create(:flight) }
+      let(:flight) { FactoryBot.create(:flight, flys_at: Time.current + 2.minutes, base_price: 50) }
       let(:valid_parameters) do
-        { no_of_seats: 80, seat_price: 120, flight_id: flight.id }
+        { no_of_seats: 80, flight_id: flight.id }
       end
 
       it 'creates booking' do
@@ -117,8 +192,16 @@ RSpec.describe 'Booking API', type: :request do
         end.to change { user.bookings.count }.by(1)
 
         expect(response).to have_http_status(:created)
-        expect(json_body['booking']).to include('no_of_seats' => 80, 'seat_price' => 120)
+        expect(json_body['booking']).to include('no_of_seats' => 80)
         expect(json_body['booking']['user']).to include('id' => user.id)
+      end
+
+      it 'checks seat_price is double base_price' do
+        post '/api/bookings',
+             params: { booking: valid_parameters }.to_json,
+             headers: auth_headers('abc123')
+
+        expect(json_body['booking']).to include('seat_price' => 100)
       end
     end
 
@@ -129,7 +212,6 @@ RSpec.describe 'Booking API', type: :request do
       let(:flight) { FactoryBot.create(:flight) }
       let(:valid_parameters) do
         { no_of_seats: 80,
-          seat_price: 120,
           flight_id: flight.id,
           user_id: other_user.id }
       end

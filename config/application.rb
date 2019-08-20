@@ -32,7 +32,7 @@ module Flighter
 
     config.middleware.insert_before 0, Rack::Cors do
         allow do
-          origins %r(\Ahttps://isa-2019-flighter-hw[56].byinfinum.co\z)
+          origins %r(\Ahttps://isa-2019-flighter-hw[567].byinfinum.co\z)
           resource '/api/*', headers: :any,
           methods: [:get, :post, :delete, :put]
         end

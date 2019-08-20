@@ -2,13 +2,117 @@ RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /flights' do
-    before { FactoryBot.create_list(:flight, 3) }
+    context 'with name_cont filter' do
+      let(:str) { 'spli' }
 
-    it 'returns list of flights' do
-      get '/api/flights'
+      before do
+        ['Split', 'zagreb-split', 'Urugvaj'].each { |name| FactoryBot.create(:flight, name: name) }
+      end
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['flights'].count).to eq(3)
+      it 'returns flights containing value in name, case insensitive' do
+        get '/api/flights',
+            params: { name_cont: str }
+
+        expect(json_body['flights'].count).to eq(2)
+      end
+    end
+
+    context 'with flys_at_eq filter' do
+      let(:target_flys_at) { 2.days.from_now }
+
+      before do
+        [2.days.from_now, 8.days.from_now].each { |time| FactoryBot.create(:flight, flys_at: time) }
+      end
+
+      it 'returns flights with flys_at equal to value' do
+        get '/api/flights',
+            params: { flys_at_eq: target_flys_at }
+
+        expect(json_body['flights'].count).to eq(1)
+      end
+    end
+
+    context 'with no_of_available_seats_gteq filter' do
+      let(:value) { 50 }
+      let(:invalid_flight) { FactoryBot.create(:flight, no_of_seats: 100) }
+
+      before do
+        FactoryBot.create(:flight, no_of_seats: 100)
+        FactoryBot.create(:booking, no_of_seats: 80, flight: invalid_flight)
+      end
+
+      it 'returns flights with available seats greater than or equal to value' do
+        get '/api/flights',
+            params: { no_of_available_seats_gteq: value }
+
+        expect(json_body['flights'].count).to eq(1)
+      end
+    end
+
+    context 'without filters' do
+      before { FactoryBot.create_list(:flight, 3) }
+
+      it 'checks if status is ok' do
+        get '/api/flights'
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns list of flights' do
+        get '/api/flights'
+
+        expect(json_body['flights'].count).to eq(3)
+      end
+    end
+
+    context 'when sorting by flys_at' do
+      before { FactoryBot.create(:flight, flys_at: 1.day.from_now) }
+
+      let!(:later_flight) { FactoryBot.create(:flight, flys_at: 2.days.from_now) }
+
+      it 'checks sorting' do
+        get '/api/flights',
+            params: { sort: 'flys_at' }
+
+        expect(json_body['flights'].last['id']).to eq(later_flight.id)
+      end
+    end
+
+    context 'when sorting by name' do
+      before { FactoryBot.create(:flight, name: 'a') }
+
+      let!(:flight) { FactoryBot.create(:flight, name: 'z') }
+
+      it 'checks sorting' do
+        get '/api/flights',
+            params: { sort: 'name' }
+
+        expect(json_body['flights'].last['id']).to eq(flight.id)
+      end
+    end
+
+    context 'when sorting by created_at' do
+      before { FactoryBot.create_list(:flight, 2) }
+
+      it 'checks sorting' do
+        get '/api/flights',
+            params: { sort: 'created_at' }
+
+        expect(json_body['flights'].first['created_at'])
+          .to be < json_body['flights'].last['created_at']
+      end
+    end
+
+    describe 'Flight Serializer' do
+      let(:flight) { FactoryBot.create(:flight) }
+
+      before { FactoryBot.create(:booking, no_of_seats: 20, flight: flight) }
+
+      it 'checks no_of_booked_seats' do
+        get '/api/flights'
+
+        expect(json_body['flights'].first['no_of_booked_seats']).to eq(20)
+      end
     end
   end
 

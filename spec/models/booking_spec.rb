@@ -7,7 +7,7 @@ RSpec.describe Booking do
   it { is_expected.to validate_numericality_of(:seat_price).is_greater_than(0) }
 
   context 'when flys_at is in the past' do
-    subject(:booking) do
+    let(:booking) do
       FactoryBot.build(
         :booking,
         flight: FactoryBot.build(:flight, flys_at: 1.day.ago)
@@ -17,6 +17,20 @@ RSpec.describe Booking do
     it 'checks if flight in the past raises error' do
       booking.valid?
       expect(booking.errors['flight']).to include('flights can\'t be in the past')
+    end
+  end
+
+  context 'when flight is overbooked' do
+    let!(:flight) { FactoryBot.create(:flight, no_of_seats: 20) }
+    let(:booking) { FactoryBot.build(:booking, flight: flight, no_of_seats: 50) }
+
+    it 'returns false when checking validity' do
+      expect(booking.valid?).to eq(false)
+    end
+
+    it 'raises error' do
+      booking.valid?
+      expect(booking.errors['no_of_seats']).to include('not enough seats available')
     end
   end
 end

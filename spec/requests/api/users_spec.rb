@@ -2,10 +2,11 @@ RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /users' do
-    before { FactoryBot.create_list(:user, 3) }
-
     context 'when user is admin' do
-      before { FactoryBot.create(:user, role: 'admin', token: 'abc123') }
+      before do
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+        FactoryBot.create_list(:user, 3)
+      end
 
       it 'returns list of all users' do
         get '/api/users',
@@ -13,6 +14,42 @@ RSpec.describe 'Users API', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(json_body['users'].count).to eq(4)
+      end
+    end
+
+    context 'when sorting by email' do
+      before do
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+        FactoryBot.create_list(:user, 2)
+      end
+
+      it 'sorts by email asc' do
+        get '/api/users',
+            headers: auth_headers('abc123')
+
+        expect(json_body['users'].first['email'])
+          .to be < json_body['users'].last['email']
+      end
+    end
+
+    context 'when filtering by first_name, last_name or email' do
+      let(:value) { 'mile' }
+
+      before do
+        FactoryBot.create(:user, role: 'admin', token: 'abc123')
+
+        FactoryBot.create(:user, first_name: 'Mile')
+        FactoryBot.create(:user, last_name: 'Miletic')
+        FactoryBot.create(:user, email: 'mile1980@mail.com')
+        FactoryBot.create(:user, first_name: 'Ante', last_name: 'Antic', email: 'ante@mail.com')
+      end
+
+      it 'filters users' do
+        get '/api/users',
+            params: { query: value },
+            headers: auth_headers('abc123')
+
+        expect(json_body['users'].count).to eq(3)
       end
     end
 

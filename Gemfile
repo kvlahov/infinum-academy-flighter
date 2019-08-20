@@ -54,6 +54,7 @@ group :development do
   gem 'web-console', '>= 3.3.0'
 end
 gem 'active_model_serializers', '~> 0.10.0'
+gem 'bullet'
 gem 'faraday'
 
 gem 'bcrypt', '~> 3.1.7'

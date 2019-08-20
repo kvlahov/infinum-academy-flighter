@@ -2,13 +2,59 @@ RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /companies' do
-    before { FactoryBot.create_list(:company, 3) }
+    context 'when filter is not present' do
+      before { FactoryBot.create_list(:company, 3) }
 
-    it 'returns list of companies' do
-      get '/api/companies'
+      it 'returns list of companies' do
+        get '/api/companies'
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['companies'].count).to eq(3)
+        expect(json_body['companies'].count).to eq(3)
+      end
+
+      it 'checks status is OK' do
+        get '/api/companies'
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when filter active is present' do
+      let(:company_with_active_flight) { FactoryBot.create(:company) }
+
+      before do
+        FactoryBot.create(:flight, company: company_with_active_flight)
+        FactoryBot.create(:company, name: 'NoFlightsCompany')
+      end
+
+      it 'shows only companies with active flights' do
+        get '/api/companies',
+            params: { filter: 'active' }
+
+        expect(json_body['companies'].count).to eq(1)
+      end
+    end
+
+    context 'when sorting' do
+      before { ['c', 'b', 'a'].each { |char| FactoryBot.create(:company, name: char) } }
+
+      it 'sorts by name ASC' do
+        get '/api/companies',
+            params: { sort: 'name' }
+
+        expect(json_body['companies'].first).to include('name' => 'a')
+      end
+    end
+
+    describe 'CompanySerializer' do
+      let!(:company) { FactoryBot.create(:company) }
+
+      before { FactoryBot.create(:flight, company: company) }
+
+      it 'includes number of active flights' do
+        get '/api/companies'
+
+        expect(json_body['companies'].first).to include('no_of_active_flights' => 1)
+      end
     end
   end
 

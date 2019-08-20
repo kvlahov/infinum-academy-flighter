@@ -2,7 +2,7 @@ class BookingPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
       if user.admin?
-        scope.all
+        scope.all.includes(:user)
       else
         user.bookings
       end
@@ -31,9 +31,9 @@ class BookingPolicy < ApplicationPolicy
 
   def permitted_attributes
     if user.admin?
-      [:no_of_seats, :seat_price, :user_id, :flight_id]
+      [:no_of_seats, :user_id, :flight_id]
     else
-      [:no_of_seats, :seat_price, :flight_id]
+      [:no_of_seats, :flight_id]
     end
   end
 end
